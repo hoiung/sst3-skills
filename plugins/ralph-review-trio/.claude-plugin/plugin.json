@@ -6,10 +6,7 @@
     "name": "hoiung",
     "url": "https://github.com/hoiung"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/hoiung/sst3-skills.git"
-  },
+  "repository": "https://github.com/hoiung/sst3-skills.git",
   "keywords": ["code-review", "ralph", "claude-code", "multi-model", "sst3"],
   "license": "MIT"
 }
