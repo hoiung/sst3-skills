@@ -48,6 +48,25 @@ Scrubbed from the private SST3 harness source at `dotfiles@9249dbf`. Business id
 - Issues / feedback: [GitHub Issues](https://github.com/hoiung/sst3-skills/issues)
 - Full SST3 harness reference (public mirror): [SST3-AI-Harness](https://github.com/hoiung/sst3-ai-harness)
 
+## Developer setup
+
+Clone and install the pre-commit hooks before making changes. Pre-commit runs the voice guard + secret scanner locally; CI runs the same checks on every push and pull request.
+
+```bash
+git clone https://github.com/hoiung/sst3-skills.git
+cd sst3-skills
+pip install pre-commit
+pre-commit install
+```
+
+Verify the hooks work:
+
+```bash
+pre-commit run --all-files
+```
+
+If this skips because no files are staged, add `--files <path>` or edit a file first.
+
 ## Contributing
 
 Open an issue first. Keep PRs single-purpose.
