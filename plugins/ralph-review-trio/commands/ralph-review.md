@@ -6,13 +6,21 @@ description: Run the three-tier Ralph Review sequence (Haiku → Sonnet → Opus
 
 Run a sequential three-tier code review on the current feature / solo branch. Each tier dispatches a reviewer subagent that runs its own checklist at increasing depth. If any tier fails, fix the findings and restart from Tier 1.
 
+## Agent dispatch — namespacing matters
+
+Claude Code registers plugin-bundled agents under the `<plugin-name>:<agent-name>` namespace. Dispatching a bare `haiku-reviewer` will fail with `Agent type 'haiku-reviewer' not found`. Always dispatch with the full plugin prefix:
+
+- `ralph-review-trio:haiku-reviewer`
+- `ralph-review-trio:sonnet-reviewer`
+- `ralph-review-trio:opus-reviewer`
+
 ## Controller logic
 
-1. **Tier 1 — Haiku** (surface). Dispatch the `haiku-reviewer` agent with the diff scope and pass criteria. Wait for `<promise>HAIKU_PASS</promise>` or a failure report.
+1. **Tier 1 — Haiku** (surface). Dispatch the `ralph-review-trio:haiku-reviewer` subagent with the diff scope and pass criteria. Wait for `<promise>HAIKU_PASS</promise>` or a failure report.
 2. **On FAIL**: main agent applies fixes, commits per-file, then restarts from Tier 1. Do NOT proceed to Tier 2 with a flag.
 3. **On PASS**: proceed to Tier 2.
-4. **Tier 2 — Sonnet** (logic). Dispatch `sonnet-reviewer`. Same pass / fail logic.
-5. **Tier 3 — Opus** (deep analysis). Dispatch `opus-reviewer`. Same pass / fail logic.
+4. **Tier 2 — Sonnet** (logic). Dispatch `ralph-review-trio:sonnet-reviewer`. Same pass / fail logic.
+5. **Tier 3 — Opus** (deep analysis). Dispatch `ralph-review-trio:opus-reviewer`. Same pass / fail logic.
 6. On all three passes: emit `<promise>RALPH_PASS</promise>` and proceed to merge gate.
 
 ## Why restart-on-fail (not continue-with-flag)

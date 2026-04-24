@@ -1,6 +1,6 @@
 {
   "name": "ralph-review-trio",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Sequential three-tier code review (Haiku surface → Sonnet logic → Opus deep), restart-on-fail. Battle-tested across hundreds of solo issues.",
   "author": {
     "name": "hoiung",
