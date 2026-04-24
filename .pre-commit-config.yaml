@@ -1,0 +1,52 @@
+# Pre-commit hooks for sst3-skills public repo.
+# See https://pre-commit.com for more information.
+
+repos:
+  - repo: local
+    hooks:
+      - id: check-public-repo-secrets
+        name: Block secrets / business identifiers / private paths
+        entry: python scripts/check-public-repo-secrets.py . --staged-only
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      - id: check-ai-writing-tells
+        name: Voice-guard public prose (README + plugin docs)
+        entry: python scripts/check-ai-writing-tells.py
+        language: system
+        files: \.md$
+        pass_filenames: true
+
+      - id: no-temp-folder
+        name: Block temp/ and tmp/ folders
+        entry: bash -c 'TEMP_FILES=$(git diff --cached --name-only | grep -E "^temp/|/temp/|^tmp/|/tmp/" || true); if [ -n "$TEMP_FILES" ]; then echo "ERROR - temp/tmp folders not allowed."; echo "$TEMP_FILES"; exit 1; fi'
+        language: system
+        pass_filenames: false
+        always_run: true
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-added-large-files
+        args: [--maxkb=1000]
+      - id: check-case-conflict
+      - id: check-merge-conflict
+      - id: check-json
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+        args: [--fix=lf]
+      - id: trailing-whitespace
+
+default_language_version:
+  python: python3
+
+exclude: |
+  (?x)^(
+    \.git/|
+    __pycache__/|
+    .*\.pyc
+  )
+
+default_stages: [pre-commit]
