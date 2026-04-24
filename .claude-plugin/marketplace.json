@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-marketplace.json",
+  "name": "sst3-skills",
+  "owner": {
+    "name": "hoiung",
+    "url": "https://github.com/hoiung"
+  },
+  "description": "SST3 Skills — Claude Code plugin marketplace. Battle-tested review, workflow, and subagent patterns from the SST3 harness.",
+  "homepage": "https://github.com/hoiung/sst3-skills",
+  "plugins": [
+    {
+      "name": "ralph-review-trio",
+      "source": "./plugins/ralph-review-trio",
+      "description": "Sequential three-tier code review (Haiku surface → Sonnet logic → Opus deep), restart-on-fail. Battle-tested across 400+ issues."
+    }
+  ]
+}
