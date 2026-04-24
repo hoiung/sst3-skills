@@ -1,6 +1,6 @@
 # Opus Tier — Deep Analysis Checklist (extended reference)
 
-This is the extended reference the Tier 3 (Opus) agent loads when a deep check needs more context than the inline agent definition. For the canonical flow + RESULT block schema, see `../agents/opus-reviewer.md`.
+This is the extended reference the Tier 3 (Opus) agent loads when a deep check needs more context than the inline agent definition. For the canonical flow + RESULT block schema, see `../../../agents/opus-reviewer.md`.
 
 ## Scope
 

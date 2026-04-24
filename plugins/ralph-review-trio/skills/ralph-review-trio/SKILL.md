@@ -42,15 +42,15 @@ A `<promise>HAIKU_PASS</promise>` / `<promise>SONNET_PASS</promise>` / `<promise
 
 ## Entry point
 
-`/ralph-review` — defined in `commands/ralph-review.md`.
+`/ralph-review` — defined in `../../commands/ralph-review.md`.
 
 ## Per-tier checklists
 
-- `agents/haiku-reviewer.md` — Tier 1 surface checklist
-- `agents/sonnet-reviewer.md` — Tier 2 logic checklist
-- `agents/opus-reviewer.md` — Tier 3 deep-analysis checklist
+- `../../agents/haiku-reviewer.md` — Tier 1 surface checklist
+- `../../agents/sonnet-reviewer.md` — Tier 2 logic checklist
+- `../../agents/opus-reviewer.md` — Tier 3 deep-analysis checklist
 
-Extended reference content under `references/` is loaded on demand by each tier when a specific check requires more context.
+Extended reference content under `references/` (same dir as this SKILL.md) is loaded on demand by each tier when a specific check requires more context.
 
 ## Outputs
 

@@ -1,6 +1,6 @@
 # Haiku Tier — Surface Checklist (extended reference)
 
-This is the extended reference the Tier 1 (Haiku) agent loads when a surface check needs more context than the inline agent definition provides. For the canonical flow + RESULT block schema, see `../agents/haiku-reviewer.md`.
+This is the extended reference the Tier 1 (Haiku) agent loads when a surface check needs more context than the inline agent definition provides. For the canonical flow + RESULT block schema, see `../../../agents/haiku-reviewer.md`.
 
 ## Scope
 

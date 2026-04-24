@@ -1,6 +1,6 @@
 # Sonnet Tier — Logic Checklist (extended reference)
 
-This is the extended reference the Tier 2 (Sonnet) agent loads when a logic check needs more context than the inline agent definition. For the canonical flow + RESULT block schema, see `../agents/sonnet-reviewer.md`.
+This is the extended reference the Tier 2 (Sonnet) agent loads when a logic check needs more context than the inline agent definition. For the canonical flow + RESULT block schema, see `../../../agents/sonnet-reviewer.md`.
 
 ## Scope
 
