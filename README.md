@@ -46,7 +46,7 @@ Scrubbed from the private SST3 harness source at `dotfiles@9249dbf`. Business id
 
 - Author: [hoiung](https://github.com/hoiung) · [hoiboy.uk](https://hoiboy.uk)
 - Issues / feedback: [GitHub Issues](https://github.com/hoiung/sst3-skills/issues)
-- Full SST3 harness reference (public mirror): [SST3-AI-Harness](https://github.com/hoiung/SST3-AI-Harness)
+- Full SST3 harness reference (public mirror): [SST3-AI-Harness](https://github.com/hoiung/sst3-ai-harness)
 
 ## Contributing
 
