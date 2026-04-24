@@ -1,0 +1,3 @@
+# Public repo marker
+# This file enables the public-repo secret detection pre-commit hook.
+# Presence of this file signals the repo is public and must pass the secret/business-identifier scan on every commit.
