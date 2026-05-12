@@ -8,7 +8,7 @@ Canonical Python copy of the rules described in the human-readable companion
 
 This module is consumed by:
   - dotfiles/SST3/scripts/check-ai-writing-tells.py  (canonical hook)
-  - hoiboy-uk/scripts/check-ai-writing-tells.py           (vendored byte-identical)
+  - hoiboy-uk/scripts/check-ai-writing-tells.py      (vendored byte-identical)
   - hoiboy-uk/scripts/voice_rules.py                 (vendored byte-identical)
 
 Drift between canonical and vendored copies is enforced by a `cmp -s` bash
@@ -220,8 +220,15 @@ BOLD_BULLET_THRESHOLD_CV: int = 20
 BOLD_BULLET_THRESHOLD_DEFAULT: int = 3
 
 # Frontmatter date: stdlib regex, NOT PyYAML.
+# Captures the YYYY-MM-DD prefix for date.fromisoformat() downstream.
+# An optional RFC3339 time component (THH:MM:SS, fractional seconds, timezone)
+# is allowed and silently ignored: Hugo accepts time-bearing dates natively and
+# the site templates only render the calendar date, so authors can include a
+# time component when they need to control same-day sort order without it
+# leaking into the rendered display. The capture group stays YYYY-MM-DD only
+# so the downstream date.fromisoformat() call is unchanged.
 FRONTMATTER_DATE_PATTERN: re.Pattern[str] = re.compile(
-    r"^date:\s*(\d{4}-\d{2}-\d{2})\s*$",
+    r"^date:\s*(\d{4}-\d{2}-\d{2})(?:T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})?)?\s*$",
     re.MULTILINE,
 )
 
