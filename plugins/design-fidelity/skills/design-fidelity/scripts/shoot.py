@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """shoot.py — config-driven full-page screenshot capture for the design-fidelity skill.
 
-Generalised from the id8u throwaway protos (~/DevProjects/screenshots/id8u-compare/
-_shoot_*.py) into a repo-generic, config-file-driven capture tool. Captures
+Generalised from throwaway capture protos into a repo-generic, config-file-driven
+capture tool. Captures
 full-page screenshots of any site (local build OR live reference) at one or more
 viewports, with the WSL lazy-load / networkidle-hang gotcha handled by default.
 
@@ -28,7 +28,7 @@ CLI overrides may replace any of base_url / pages / viewports / out_dir / scroll
 without touching the config file. Output (the screenshot paths) is printed to
 stdout; all decision-branch telemetry (key=value) goes to stderr (AP #12).
 
-Mechanics reference (do not duplicate here): docs/guides/playwright-fallback.md.
+Mechanics reference (do not duplicate here): references/playwright-fallback.md.
 """
 from __future__ import annotations
 
@@ -53,7 +53,7 @@ try:
 except ImportError:
     sys.stderr.write(
         "shoot.py: playwright is not importable in this interpreter.\n"
-        "  Remediation (per docs/guides/playwright-fallback.md):\n"
+        "  Remediation (per references/playwright-fallback.md):\n"
         "    .venv/bin/python -m playwright install chromium\n"
         "  (install the lib first if needed: uv pip install playwright)\n"
     )

@@ -160,7 +160,7 @@ probe guard + the normalisation + AE/closeness output.
 ## design-fidelity SKILL
 
 The **design-fidelity SKILL** — visual design-fidelity loop that orchestrates these
-mechanics (`.claude/skills/design-fidelity/SKILL.md`) — chains capture + computed-CSS
+mechanics (`SKILL.md`) — chains capture + computed-CSS
 + pixel-diff into a per-page 3x iterate loop. This guide is its mechanics
 reference; the skill owns the loop orchestration.
 

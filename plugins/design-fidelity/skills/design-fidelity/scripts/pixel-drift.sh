@@ -29,7 +29,7 @@
 # ImageMagick failure → surface stderr + exit 2; rc 0/1 = images identical/differ
 # = normal).
 #
-# Mechanics reference: docs/guides/playwright-fallback.md ("Pixel-diff scoring").
+# Mechanics reference: references/playwright-fallback.md ("Pixel-diff scoring").
 
 local_png="$1"
 live_png="$2"

@@ -14,7 +14,7 @@ exit 2  = usage error (no selectors / no URLs)
 exit 3  = playwright not importable (remediation printed)
 
 The numeric report goes to stdout; decision-branch telemetry (key=value) to
-stderr (AP #12). Mechanics reference: docs/guides/playwright-fallback.md
+stderr (AP #12). Mechanics reference: references/playwright-fallback.md
 ("Live computed-CSS reads" section).
 """
 from __future__ import annotations
@@ -29,7 +29,7 @@ try:
 except ImportError:
     sys.stderr.write(
         "compare_computed_style.py: playwright is not importable in this interpreter.\n"
-        "  Remediation (per docs/guides/playwright-fallback.md):\n"
+        "  Remediation (per references/playwright-fallback.md):\n"
         "    .venv/bin/python -m playwright install chromium\n"
         "  (install the lib first if needed: uv pip install playwright)\n"
     )

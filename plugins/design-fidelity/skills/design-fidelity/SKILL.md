@@ -9,7 +9,7 @@ Orchestrates the loop for matching a built site to a live reference: capture hea
 
 > **Scope contract (Invariant)**: this skill ONLY shoots screenshots, diffs them, reads computed CSS, and SUGGESTS CSS changes for the operator to apply. It NEVER deploys, NEVER edits live-site config or DNS, and NEVER pushes to a live site. It reads; the operator decides and edits. Screenshot output is always written OUTSIDE any git repo so a capture can never be committed.
 
-> **Hard dependency**: the three helpers `.claude/skills/design-fidelity/scripts/shoot.py`, `.claude/skills/design-fidelity/scripts/compare_computed_style.py`, and `.claude/skills/design-fidelity/scripts/pixel-drift.sh`; the two mechanics guides `docs/guides/playwright-fallback.md` (capture + computed-CSS + pixel-diff command bodies) and `docs/guides/chrome-devtools-mcp.md` (MCP route); the `playwright` Python lib + its bundled `chromium_headless_shell` (per-repo `.venv` OR global python3 — the helpers fail loud with the install command if it is missing); and ImageMagick `compare` (the pixel-diff engine — pixelmatch is NOT installed). The skill is available in every repo where its directory is present on the Claude Code skills path.
+> **Hard dependency**: the three helpers `scripts/shoot.py`, `scripts/compare_computed_style.py`, and `scripts/pixel-drift.sh`; the two mechanics guides `references/playwright-fallback.md` (capture + computed-CSS + pixel-diff command bodies) and `references/chrome-devtools-mcp.md` (MCP route); the `playwright` Python lib + its bundled `chromium_headless_shell` (per-repo `.venv` OR global python3 — the helpers fail loud with the install command if it is missing); and ImageMagick `compare` (the pixel-diff engine — pixelmatch is NOT installed). The skill is available in every repo where its directory is present on the Claude Code skills path.
 
 ## SST3 Anti-Patterns Governing This Skill
 
@@ -37,8 +37,8 @@ Before any action, respect these APs (full detail in the SST3 `ANTI-PATTERNS.md`
 
 ## Mandatory Reading on Invoke
 
-1. `docs/guides/playwright-fallback.md` — the canonical capture + "Live computed-CSS reads" + "Pixel-diff scoring" mechanics (command bodies live HERE, not in this file).
-2. `docs/guides/chrome-devtools-mcp.md` — the MCP route + the browser-state security note.
+1. `references/playwright-fallback.md` — the canonical capture + "Live computed-CSS reads" + "Pixel-diff scoring" mechanics (command bodies live HERE, not in this file).
+2. `references/chrome-devtools-mcp.md` — the MCP route + the browser-state security note.
 3. The per-repo `.design-fidelity.json` if it exists (page map / viewports / out_dir).
 4. The screenshots output directory for the active repo under `~/DevProjects/screenshots/<repo>/` (where captures and diffs land — OUTSIDE the repo).
 
@@ -70,7 +70,7 @@ Repeat at most 3 times per page. Watch the drift number trend DOWN and the compu
 
 ## Security: chrome-devtools browser state
 
-When you drive a LIVE site via the chrome-devtools MCP (the alternative to the headless playwright route), the MCP runs with full browser access — it can read open-tab cookies, auth tokens in request/response headers, pasted secrets in form fields, and cached credentials surfaced by the page (live browser state). Disable chrome-devtools via `/plugin` BEFORE pasting any secret. The DEFAULT route in this skill is headless playwright, which carries no live browser state, so prefer it. Full detail: `docs/guides/chrome-devtools-mcp.md` "Security note".
+When you drive a LIVE site via the chrome-devtools MCP (the alternative to the headless playwright route), the MCP runs with full browser access — it can read open-tab cookies, auth tokens in request/response headers, pasted secrets in form fields, and cached credentials surfaced by the page (live browser state). Disable chrome-devtools via `/plugin` BEFORE pasting any secret. The DEFAULT route in this skill is headless playwright, which carries no live browser state, so prefer it. Full detail: `references/chrome-devtools-mcp.md` "Security note".
 
 ## Anti-Overfit Constraint
 
@@ -80,12 +80,12 @@ The pixel-drift number is a TREND diagnostic — the operator watches it decreas
 
 | File | Location |
 |------|----------|
-| Capture helper | `.claude/skills/design-fidelity/scripts/shoot.py` |
-| Computed-CSS delta helper | `.claude/skills/design-fidelity/scripts/compare_computed_style.py` |
-| Pixel-drift helper | `.claude/skills/design-fidelity/scripts/pixel-drift.sh` |
-| Unit tests | `.claude/skills/design-fidelity/tests/run_unit_tests.sh` |
-| Capture / computed-CSS / pixel-diff mechanics | `docs/guides/playwright-fallback.md` |
-| MCP route + browser-state security | `docs/guides/chrome-devtools-mcp.md` |
+| Capture helper | `scripts/shoot.py` |
+| Computed-CSS delta helper | `scripts/compare_computed_style.py` |
+| Pixel-drift helper | `scripts/pixel-drift.sh` |
+| Unit tests | `tests/run_unit_tests.sh` |
+| Capture / computed-CSS / pixel-diff mechanics | `references/playwright-fallback.md` |
+| MCP route + browser-state security | `references/chrome-devtools-mcp.md` |
 | Per-repo config | `<consumer-repo>/.design-fidelity.json` |
 | Screenshot output (OUTSIDE any repo) | `~/DevProjects/screenshots/<repo>/` |
 

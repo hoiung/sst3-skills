@@ -99,7 +99,7 @@ section); do not duplicate it here — call `evaluate_script` with the same
 `getComputedStyle` body when driving a live browser via the MCP.
 
 The **design-fidelity SKILL** — visual design-fidelity loop that orchestrates these
-mechanics (`.claude/skills/design-fidelity/SKILL.md`) — defaults to the headless
+mechanics (`SKILL.md`) — defaults to the headless
 playwright route (no live browser state); reach for this MCP only for interactive
 live inspection.
 
@@ -109,7 +109,7 @@ live inspection.
 1. Verify server is configured: `claude mcp list`
 2. If missing, add via CLI: `claude mcp add chrome-devtools --scope user -- npx -y chrome-devtools-mcp@1.0.0` (pinned version recommended; see Version pinning section)
 3. Restart Claude Code completely
-4. See [MCP Configuration Guide](mcp-configuration.md) for detailed troubleshooting
+4. See [Claude Code MCP setup](https://code.claude.com/docs/en/mcp) for detailed troubleshooting
 
 ### NPX Command Fails
 1. Verify Node.js is installed: `node --version`
@@ -125,7 +125,7 @@ live inspection.
 
 **File**: `~/.claude.json` (user scope, added via `claude mcp add`)
 
-See [MCP Configuration Guide](mcp-configuration.md) for setup instructions.
+See [Claude Code MCP setup](https://code.claude.com/docs/en/mcp) for setup instructions.
 
 ```bash
 # Add chrome-devtools server (pinned version recommended over @latest — see Version pinning section)
