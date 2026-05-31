@@ -11,7 +11,12 @@
     {
       "name": "ralph-review-trio",
       "source": "./plugins/ralph-review-trio",
-      "description": "Sequential three-tier code review (Haiku surface → Sonnet logic → Opus deep), restart-on-fail. Battle-tested across 400+ issues."
+      "description": "Sequential three-tier code review (Haiku surface → Sonnet logic → Opus deep), restart-on-fail. Battle-tested across hundreds of solo issues."
+    },
+    {
+      "name": "design-fidelity",
+      "source": "./plugins/design-fidelity",
+      "description": "Visual design-fidelity loop: headless screenshots, live computed-CSS deltas, and pixel-drift scoring to match a built site against a live reference. Read-only."
     }
   ]
 }

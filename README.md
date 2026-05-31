@@ -7,9 +7,10 @@ Claude Code plugin marketplace for the SST3 harness review, workflow, and subage
 ```
 /plugin marketplace add hoiung/sst3-skills
 /plugin install ralph-review-trio@sst3-skills
+/plugin install design-fidelity@sst3-skills
 ```
 
-Then run `/ralph-review` on a finished implementation branch.
+Then run `/ralph-review` on a finished implementation branch, or `/design-fidelity` to match a built site against a live reference.
 
 ## Plugins
 
@@ -26,6 +27,20 @@ Sequential three-tier code review. A reviewer at each tier runs a different-dept
 Runs as a `/ralph-review` slash command that dispatches the three subagents in order with a restart-on-fail controller.
 
 See `plugins/ralph-review-trio/skills/ralph-review-trio/SKILL.md` for the triggering instruction, and `plugins/ralph-review-trio/references/` for the per-tier checklists.
+
+### `design-fidelity`
+
+Visual design-fidelity loop. Capture headless full-page screenshots (desktop + mobile), compare a local build against a live reference, read the exact computed-CSS deltas, and pixel-diff the drift. Read-only: it measures and suggests CSS changes, never deploys or edits a live site.
+
+| Step | Helper | Output |
+|---|---|---|
+| Shoot | `shoot.py` | full-page desktop + mobile PNGs, written outside any repo |
+| Compare | `compare_computed_style.py` | per-selector computed-CSS deltas (spacing / colour / font) |
+| Drift | `pixel-drift.sh` | AE + closeness% + a diff-highlight image |
+
+Runs as a `/design-fidelity` slash command (`shoot` / `compare` / `diff`) over a per-page 3x iterate loop. The pixel-drift number is a trend diagnostic, never a hard pass-gate.
+
+See `plugins/design-fidelity/skills/design-fidelity/SKILL.md` for the workflow, and `plugins/design-fidelity/skills/design-fidelity/references/` for the capture + computed-CSS + pixel-diff mechanics.
 
 ## What makes this pack different
 

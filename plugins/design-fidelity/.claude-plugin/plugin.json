@@ -1,0 +1,12 @@
+{
+  "name": "design-fidelity",
+  "version": "0.1.0",
+  "description": "Visual design-fidelity loop: headless full-page screenshots (desktop+mobile), live computed-CSS deltas, and ImageMagick pixel-drift scoring to match a built site against a live reference. Read-only - it measures and suggests, never deploys.",
+  "author": {
+    "name": "hoiung",
+    "url": "https://github.com/hoiung"
+  },
+  "repository": "https://github.com/hoiung/sst3-skills.git",
+  "keywords": ["design-fidelity", "screenshots", "visual-regression", "pixel-diff", "computed-css", "playwright", "claude-code", "sst3"],
+  "license": "MIT"
+}

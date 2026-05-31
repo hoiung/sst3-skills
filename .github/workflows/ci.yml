@@ -62,7 +62,17 @@ jobs:
         run: |
           jq -e '.name and .description and .plugins and (.plugins | length > 0)' \
             .claude-plugin/marketplace.json
-      - name: Validate ralph-review-trio plugin.json required fields
+      - name: Validate ALL plugin.json manifests required fields
         run: |
-          jq -e '.name and .version and .description and .repository' \
-            plugins/ralph-review-trio/.claude-plugin/plugin.json
+          set -euo pipefail
+          shopt -s nullglob
+          found=0
+          for pj in plugins/*/.claude-plugin/plugin.json; do
+            found=1
+            echo "Validating $pj"
+            jq -e '.name and .version and .description and .repository' "$pj"
+          done
+          if [ "$found" -ne 1 ]; then
+            echo "no plugin.json manifests found under plugins/*/.claude-plugin/" >&2
+            exit 1
+          fi
