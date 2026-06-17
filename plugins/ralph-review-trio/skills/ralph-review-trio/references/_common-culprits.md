@@ -1,6 +1,6 @@
 # Ralph Review — Shared 5-Culprits Reference
 
-> **Architectural design**: Each Ralph tier scans for the same five patterns at *increasing depth*. The depth-layering is intentional. This file holds the shared framing so the category numbers and names stay in sync; each tier file keeps its own depth-appropriate bullets.
+> Each Ralph tier scans for the same five patterns at *increasing depth*. This file holds the shared category numbers and names so the tiers stay in sync; each tier file keeps its own depth-appropriate bullets.
 
 ## The 5 Categories
 
