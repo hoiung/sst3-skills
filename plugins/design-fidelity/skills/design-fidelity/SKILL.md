@@ -5,15 +5,13 @@ description: Screenshot a webpage, compare a local build against the live site, 
 
 # Design-Fidelity — Visual Design-Fidelity Loop
 
-Orchestrates the loop for matching a built site to a live reference: capture headless screenshots, compare to the live reference, read the exact computed CSS, tweak, re-shoot, and measure drift. The mechanics live in two guides; this skill packages the loop on top of them. Reusable in every repo where the skill directory is on the Claude Code skills path.
-
 > **Scope contract (Invariant)**: this skill ONLY shoots screenshots, diffs them, reads computed CSS, and SUGGESTS CSS changes for the operator to apply. It NEVER deploys, NEVER edits live-site config or DNS, and NEVER pushes to a live site. It reads; the operator decides and edits. Screenshot output is always written OUTSIDE any git repo so a capture can never be committed.
 
 > **Hard dependency**: the three helpers `scripts/shoot.py`, `scripts/compare_computed_style.py`, and `scripts/pixel-drift.sh`; the two mechanics guides `references/playwright-fallback.md` (capture + computed-CSS + pixel-diff command bodies) and `references/chrome-devtools-mcp.md` (MCP route); the `playwright` Python lib + its bundled `chromium_headless_shell` (per-repo `.venv` OR global python3 — the helpers fail loud with the install command if it is missing); and ImageMagick `compare` (the pixel-diff engine — pixelmatch is NOT installed). The skill is available in every repo where its directory is present on the Claude Code skills path.
 
 ## SST3 Anti-Patterns Governing This Skill
 
-Before any action, respect these APs (full detail in the SST3 `ANTI-PATTERNS.md` standard):
+Respect these APs (full detail in `ANTI-PATTERNS.md`):
 
 - **AP #10 Duplicate Rules**: the capture / computed-CSS / pixel-diff MECHANICS live in the two guides. This skill points at them — it does NOT restate the command bodies. Grep the guides before adding any mechanic doc here.
 - **AP #16 Monitor, Don't Fire-and-Forget**: after every `shoot.py` / `compare_computed_style.py` / `pixel-drift.sh` run, VERIFY the exit code and read the stderr telemetry (which wait-strategy fired, normalisation WxH, `compare` rc). "Ran the script" is not "got the shot".
@@ -44,8 +42,6 @@ Before any action, respect these APs (full detail in the SST3 `ANTI-PATTERNS.md`
 
 ## The Per-Page 3x Iterate Loop
 
-The framing, verbatim: "focus on one page at a time screenshot and re-iteration, screenshot, re-iteration, screenshot, re-iteration, up to 3 times until it's closely designed per page".
-
 Work ONE page at a time. Each iteration runs this concrete dual-URL recipe:
 
 1. **Shoot both sides at both viewports.** Shoot the LOCAL build (`shoot.py` with `base_url` = the local server) for the target page path at desktop (1440) + mobile (390), and shoot/cache the LIVE reference (`shoot.py` with `base_url` = the live base) for the same path at the same viewports. Capture local and live at identical viewport widths so the drift number is not inflated by stretch.
@@ -74,7 +70,7 @@ When you drive a LIVE site via the chrome-devtools MCP (the alternative to the h
 
 ## Anti-Overfit Constraint
 
-The pixel-drift number is a TREND diagnostic — the operator watches it decrease across iterations; it is NEVER a hard pass-gate. The target is a STRUCTURAL match, not pixel-perfection (anti-aliasing, font-hinting, and dynamic content make pixel-perfect impossible and pointless). The page→path map, `base_url`, and viewport list are PER-REPO config — the proto values are an example, NOT a default. Honestly across all repos: `shoot.py` is usable capture-only / standalone when there is no live reference (greenfield); the compare + pixel-drift loop fires ONLY when a live reference URL is supplied.
+The pixel-drift number is a TREND diagnostic — the operator watches it decrease across iterations; it is NEVER a hard pass-gate. The target is a STRUCTURAL match, not pixel-perfection (anti-aliasing, font-hinting, and dynamic content make pixel-perfect impossible and pointless). The page→path map, `base_url`, and viewport list are PER-REPO config — the proto values are an example, NOT a default.
 
 ## File Locations
 

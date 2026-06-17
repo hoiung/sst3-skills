@@ -4,7 +4,7 @@ description: Run the visual design-fidelity loop — capture headless screenshot
 
 # Design-Fidelity
 
-Invoke the design-fidelity skill to match a built site against a live reference. The skill bundles three helpers (`shoot.py`, `compare_computed_style.py`, `pixel-drift.sh`) and two mechanics references (`playwright-fallback.md`, `chrome-devtools-mcp.md`). Read the bundled `SKILL.md` first — it is the authoritative workflow; this command is a thin entry point.
+Invoke the design-fidelity skill to match a built site against a live reference. Read the bundled `SKILL.md` first — it is the authoritative workflow; this command is a thin entry point.
 
 ## Sub-commands
 
