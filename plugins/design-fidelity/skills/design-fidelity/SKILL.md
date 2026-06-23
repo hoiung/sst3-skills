@@ -7,6 +7,8 @@ description: Screenshot a webpage, compare a local build against the live site, 
 
 > **Scope contract (Invariant)**: this skill ONLY shoots screenshots, diffs them, reads computed CSS, and SUGGESTS CSS changes for the operator to apply. It NEVER deploys, NEVER edits live-site config or DNS, and NEVER pushes to a live site. It reads; the operator decides and edits. Screenshot output is always written OUTSIDE any git repo so a capture can never be committed.
 
+> **Related**: drawing/annotating a schematic diagram (not matching a live page)? See `docs/guides/diagram-annotation-qa.md` (`../dotfiles/docs/guides/...` from a consumer repo) — it reuses this skill's `shoot.py` for the render-and-inspect step of the Hybrid diagram pipeline.
+
 > **Hard dependency**: the three helpers `scripts/shoot.py`, `scripts/compare_computed_style.py`, and `scripts/pixel-drift.sh`; the two mechanics guides `references/playwright-fallback.md` (capture + computed-CSS + pixel-diff command bodies) and `references/chrome-devtools-mcp.md` (MCP route); the `playwright` Python lib + its bundled `chromium_headless_shell` (per-repo `.venv` OR global python3 — the helpers fail loud with the install command if it is missing); and ImageMagick `compare` (the pixel-diff engine — pixelmatch is NOT installed). The skill is available in every repo where its directory is present on the Claude Code skills path.
 
 ## SST3 Anti-Patterns Governing This Skill
