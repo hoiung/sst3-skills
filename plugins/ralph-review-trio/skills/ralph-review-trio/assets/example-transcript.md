@@ -20,7 +20,7 @@ Main agent dispatches `haiku-reviewer` against the current branch diff.
 
 ```
 ## RESULT
-mcp_graph_available: yes
+structural_search_available: yes
 verdict: fail
 files_touched:
   - src/clients/order_client.py
@@ -49,7 +49,7 @@ Main agent applies fixes:
 
 ```
 ## RESULT
-mcp_graph_available: yes
+structural_search_available: yes
 verdict: pass
 files_touched:
   - src/clients/order_client.py
@@ -66,7 +66,7 @@ scope_gaps: none
 
 ```
 ## RESULT
-mcp_graph_available: yes
+structural_search_available: yes
 verdict: fail
 files_touched:
   - src/clients/order_client.py
@@ -112,7 +112,7 @@ findings: []
 
 ```
 ## RESULT
-mcp_graph_available: yes
+structural_search_available: yes
 verdict: pass
 files_touched:
   - src/clients/order_client.py
@@ -126,7 +126,7 @@ governance_drift: none_detected
   - Tier A box "Move max_retries to config" closed at commit b84c5d1 — same phase window
   - Tier B box "Fix Everything applied" closed at end — acceptable
 spot_check:
-  - graph_result: callers_of(_retry_wrapper) returned 1 caller
+  - structural_search_result: call sites of _retry_wrapper -> 1 caller
   - source_read: src/clients/order_client.py:78 — confirmed single call site
 factual_claims: none added in this diff
 ```
@@ -139,6 +139,7 @@ factual_claims: none added in this diff
 <promise>RALPH_PASS</promise>
 
 Three tiers passed. Two restart cycles (Tier 1 × 2 iterations, Tier 2 × 1 iteration).
+ralph_restarts: 2 of 5 before escalation.
 Total findings fixed: 4.
 Branch ready for merge.
 ```
@@ -148,6 +149,7 @@ Branch ready for merge.
 ## What this transcript demonstrates
 
 - **Restart-on-fail**: Tier 2 found issues after Tier 1 already passed. Loop went back to Tier 1, not to "Tier 3 with a flag".
+- **Bounded restart loop**: this run used 2 restarts. The loop allows up to 5 restarts; at restart 6 it escalates to a class sweep and then resumes with the count reset to zero. The bound counts RESTARTS, not rounds, and it redirects effort rather than ending the review.
 - **Cross-boundary contract**: the `**kwargs`-swallowing mock was caught at Tier 2 — surface tier doesn't trace call-args assertions.
 - **Governance cadence**: Opus tier classified the three checkbox closures correctly (two Tier A interleaved, one Tier B batched).
 - **Graph spot-check**: Opus used graph to list callers, then read the source to confirm — never trusted the graph alone.
