@@ -16,7 +16,7 @@ Then run `/ralph-review` on a finished implementation branch, or `/design-fideli
 
 ### `ralph-review-trio`
 
-Sequential three-tier code review. A reviewer at each tier runs a different-depth checklist; if any tier fails, the loop restarts from Tier 1. No next-tier-with-flag shortcut.
+Sequential three-tier code review. A reviewer at each tier runs a different-depth checklist; if any tier fails, the loop restarts from Tier 1. No next-tier-with-flag shortcut. The loop is bounded at up to 5 restarts; at restart 6 it escalates to a class sweep and then resumes with the count reset to zero, so the review is redirected rather than abandoned.
 
 | Tier | Model | Role |
 |---|---|---|
@@ -26,7 +26,7 @@ Sequential three-tier code review. A reviewer at each tier runs a different-dept
 
 Runs as a `/ralph-review` slash command that dispatches the three subagents in order with a restart-on-fail controller.
 
-See `plugins/ralph-review-trio/skills/ralph-review-trio/SKILL.md` for the triggering instruction, and `plugins/ralph-review-trio/references/` for the per-tier checklists.
+See `plugins/ralph-review-trio/skills/ralph-review-trio/SKILL.md` for the triggering instruction, and `plugins/ralph-review-trio/skills/ralph-review-trio/references/` for the per-tier checklists.
 
 ### `design-fidelity`
 
@@ -44,10 +44,10 @@ See `plugins/design-fidelity/skills/design-fidelity/SKILL.md` for the workflow, 
 
 ## What makes this pack different
 
-- **Sequential restart-on-fail**: fail in any tier restarts from Tier 1, not "continue to next tier with warning".
+- **Sequential restart-on-fail**: fail in any tier restarts from Tier 1, not "continue to next tier with warning". Bounded at up to 5 restarts, counting RESTARTS not rounds, then escalation instead of a sixth.
 - **AP #18 Sample Invocation Gate**: for pipeline / CLI-wiring / cross-module function-arg propagation changes, reviewers require a REAL-CLI sample invocation against a real DB. Exit-code-0 alone is insufficient.
 - **AP #20 Proof-of-Work governance**: canonical audit signal is the `## Proof of Work` section in the issue body — not timeline events. Tier A phase-deliverable vs Tier B cross-cutting-meta cadence discrimination.
-- **AP #19 `mcp_graph_available` first-line discriminator**: every subagent RESULT block that discusses code-graph queries must declare MCP availability on the first line, so the controller can distinguish "no MCP access" from "lazy fallback".
+- **AP #19 `structural_search_available` first-line discriminator**: every subagent RESULT block that discusses code-graph queries must declare structural-search availability on the first line, so the controller can distinguish "no structural-search access" from "lazy fallback".
 
 ## Provenance
 
