@@ -5,7 +5,7 @@ description: Run a sequential three-tier code review on a finished implementatio
 
 # Ralph Review Trio
 
-This skill triggers `/ralph-review`, which runs three sequential reviewer subagents at increasing depth. If any tier flags a failure, the loop restarts from Tier 1 after fixes.
+This skill triggers `/ralph-review`, which runs three sequential reviewer subagents at increasing depth. If any tier flags a failure, the loop restarts from Tier 1 after fixes, up to 5 restarts. The bound counts RESTARTS, not rounds; at restart 6 the loop escalates to a class sweep and then resumes with the count reset to zero, so review never stops early.
 
 ## When to trigger
 
@@ -58,7 +58,7 @@ Each tier writes a fenced `## RESULT` block with:
 
 ```
 ## RESULT
-mcp_graph_available: yes|no      # first line when discussing graph queries
+structural_search_available: yes|no   # first line when discussing structural-search results
 verdict: pass|fail|unknown
 files_touched: [paths]
 findings: [{path, line, claim, evidence}]
