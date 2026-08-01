@@ -17,7 +17,7 @@ Claude Code registers plugin-bundled agents under the `<plugin-name>:<agent-name
 ## Controller logic
 
 1. **Tier 1 — Haiku** (surface). Dispatch the `ralph-review-trio:haiku-reviewer` subagent with the diff scope and pass criteria. Wait for `<promise>HAIKU_PASS</promise>` or a failure report.
-2. **On FAIL**: main agent applies fixes, commits per-file, then restarts from Tier 1. Do NOT proceed to Tier 2 with a flag.
+2. **On FAIL**: main agent applies fixes, commits per-file, then restarts from Tier 1. Do NOT proceed to Tier 2 with a flag. The restart loop is bounded at up to 5 restarts. The bound counts RESTARTS, not rounds: a restart is a return to Tier 1 after a FAIL, so round N+1 begins with restart N.
 3. **On PASS**: proceed to Tier 2.
 4. **Tier 2 — Sonnet** (logic). Dispatch `ralph-review-trio:sonnet-reviewer`. Same pass / fail logic.
 5. **Tier 3 — Opus** (deep analysis). Dispatch `ralph-review-trio:opus-reviewer`. Same pass / fail logic.
@@ -37,7 +37,7 @@ Bugs caught by a later tier often invalidate earlier-tier findings. The surface-
 
 ```
 ## RESULT
-mcp_graph_available: yes|no      # first line when discussing graph queries
+structural_search_available: yes|no   # first line when discussing structural-search results
 verdict: pass|fail|unknown
 files_touched: [paths]
 findings: [{path, line, claim, evidence}]
@@ -54,3 +54,9 @@ Any command a reviewer runs that produces > 200 lines (pytest, git diff, log tai
 
 - On PASS: `<promise>RALPH_PASS</promise>` + summary of all three tiers' RESULT blocks.
 - On FAIL (after all retries): the failing tier's RESULT block + main-agent-proposed fix list. No PASS promise emitted.
+
+## Restart bound and escalation
+
+Restart 6 is NOT taken. Escalate instead: run ONE class-sweep pass over the whole defect class, then resume the tier sequence with the restart count reset to zero. The cycle repeats - up to 5 restarts, escalate, up to 5 restarts, escalate. There is no stop-and-ask terminal state: the bound redirects effort, it never ends the review.
+
+Only a finding that changes SHIPPED BEHAVIOUR restarts the sequence. A finding confined to tests, comments, or documentation is recorded and fixed, but does not restart from Tier 1. A finding that invalidates the EVIDENCE for an acceptance criterion counts as shipped behaviour and DOES restart.
