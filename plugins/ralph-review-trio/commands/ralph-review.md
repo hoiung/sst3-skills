@@ -57,6 +57,6 @@ Any command a reviewer runs that produces > 200 lines (pytest, git diff, log tai
 
 ## Restart bound and escalation
 
-Restart 6 is NOT taken. Escalate instead: run ONE class-sweep pass over the whole defect class, then resume the tier sequence with the restart count reset to zero. The cycle repeats - up to 5 restarts, escalate, up to 5 restarts, escalate. There is no stop-and-ask terminal state: the bound redirects effort, it never ends the review.
+Restart 6 is NOT taken. Escalate instead: run ONE class-sweep pass over the whole defect class, then resume the tier sequence with the restart count reset to zero. Each escalation MUST use a different method from the previous escalation in the same review, and records which method it used and what it cost - two identical sweeps fail identically. The cycle repeats - up to 5 restarts, escalate, up to 5 restarts, escalate. There is no stop-and-ask terminal state: the bound redirects effort, it never ends the review.
 
 Only a finding that changes SHIPPED BEHAVIOUR restarts the sequence. A finding confined to tests, comments, or documentation is recorded and fixed, but does not restart from Tier 1. A finding that invalidates the EVIDENCE for an acceptance criterion counts as shipped behaviour and DOES restart.
