@@ -139,12 +139,12 @@ Unit + smoke tests are necessary but NOT sufficient for pipeline / backtest / or
 
 Preconditions: a code-review-graph MCP server is available, graph fresh. If either fails, skip to the fallback clause below.
 
-- [ ] For each modified function: `graph query callers_of(<function_name>)` → list all call sites; verify each handles the changed signature / behaviour.
-- [ ] For each modified function: `graph query callees_of(<function_name>)` → confirm no newly-called functions have incompatible contracts (null-safety, config access).
-- [ ] `graph query search(pattern)` for duplicate implementations: search for new calculation / parsing / schema-handling logic — confirm it doesn't already exist.
-- [ ] **MCP-access discrimination**: every subagent RESULT block discussing graph queries starts with `mcp_graph_available: yes|no`. Yes + no graph-query evidence = FAIL (lazy fallback). No + grep fallback = PASS.
+- [ ] For each modified function: enumerate every call site, and verify each one handles the changed signature / behaviour.
+- [ ] For each modified function: enumerate what it now calls, and confirm no newly-called function has an incompatible contract (null-safety, config access).
+- [ ] Duplicate-implementation search: for new calculation / parsing / schema-handling logic, search the codebase for an existing equivalent before accepting it as new.
+- [ ] **Tooling-access discrimination**: every subagent RESULT block discussing structural-search results starts with `structural_search_available: yes|no`. Yes + no structural-search evidence = FAIL (lazy fallback). No + grep fallback = PASS.
 
-**Fallback clause** (retry-aware, evidence-required): if first graph call fails, retry once. If second fails, the RESULT block MUST include the Explore-subagent's RESULT block demonstrating manual call-graph audit was actually executed. Documenting only `[graph unavailable]` without subagent RESULT = silent skip = FAIL.
+**Fallback clause** (retry-aware, evidence-required): if the first structural-search call fails, retry once. If the second fails, the RESULT block MUST include an Explore-subagent RESULT block demonstrating that a manual call-site audit was actually executed. Recording only `[search unavailable]` with no subagent RESULT is a silent skip = FAIL.
 
 ## Pass Criteria
 
@@ -159,4 +159,4 @@ Output: `<promise>SONNET_PASS</promise>`
 1. List failed items with evidence of failure.
 2. Specify which Fail Fast / Registry violation was found.
 3. Do NOT output the promise.
-4. Ralph loop restarts from Tier 1.
+4. Ralph loop restarts from Tier 1. The loop is bounded: up to 5 restarts, then escalate to a class sweep and resume with the count reset to zero. The bound counts RESTARTS, not rounds.
