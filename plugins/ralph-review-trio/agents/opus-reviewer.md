@@ -115,12 +115,12 @@ Classify every checked `[x]` box into one of two tiers:
 
 Preconditions: a code-review-graph MCP server is available, graph fresh. If either fails, skip to fallback clause below.
 
-- [ ] Dead code detection: `graph query large_functions(min_lines=200)` + manual orphan scan. For each candidate: `graph query callers_of(<name>)` returns empty in the same module ⇒ orphan. Subagent confirms whether call is via reflection / dynamic dispatch (not an orphan) or a true orphan (cleanup target).
-- [ ] Impact scope validation: `graph query impact(changed_files, max_depth=2)` — enumerate all impacted modules; identify unexpected cross-boundary edges. Document each boundary: intended (defence-in-depth / architectural layering) vs emergent (refactor target).
+- [ ] Dead code detection: large-function sweep + manual orphan scan. For each candidate, enumerate its call sites — empty within the same module ⇒ orphan. The subagent confirms whether it is reached by reflection / dynamic dispatch (not an orphan) or is a true orphan (cleanup target).
+- [ ] Impact-scope validation: trace the changed files two hops out, enumerate every impacted module, and identify unexpected cross-boundary edges. Document each boundary: intended (defence-in-depth / architectural layering) vs emergent (refactor target).
 - [ ] Large functions audit: confirm no function in the diff exceeded 200 lines. If any did, architectural red flag — require refactor.
 - [ ] Full graph-tool discipline: any "no results" response from graph in an area with unsupported-language files (YAML, JSON, SQL, shell) is explicitly broadened to subagent exploration before drawing a negative conclusion; graph `last_updated` timestamp recorded in RESULT.
 
-**Fallback clause** (retry-aware, evidence-required): first graph call fails → retry once. Second fails → RESULT MUST include the Explore-subagent's RESULT block demonstrating manual architectural audit (dead code + impact + large functions) was actually executed. Documenting only `[graph unavailable]` without subagent RESULT = silent skip = FAIL.
+**Fallback clause** (retry-aware, evidence-required): if the first structural-search call fails, retry once. If the second fails, the RESULT block MUST include an Explore-subagent RESULT block demonstrating that a manual architectural audit (dead code + impact + large functions) was actually executed. Recording only `[search unavailable]` with no subagent RESULT is a silent skip = FAIL.
 
 ### Overengineering Check
 - [ ] Is there a simpler solution that works?
@@ -160,4 +160,4 @@ Output: `<promise>OPUS_PASS</promise>`
 2. Explain why it violates standards
 3. Suggest a specific fix
 4. Do NOT output the promise
-5. Ralph loop restarts from Tier 1 after fixes
+5. Ralph loop restarts from Tier 1 after fixes. The loop is bounded: up to 5 restarts, then escalate to a class sweep and resume with the count reset to zero. The bound counts RESTARTS, not rounds.
