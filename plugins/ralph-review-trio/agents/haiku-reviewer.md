@@ -87,18 +87,18 @@ Fast, cheap surface validation. Catches the majority of issues with the lowest t
 
 Preconditions: the project has a code-review-graph MCP server available, with a fresh graph (`config status` returns non-zero `total_nodes` and a recent `last_updated`). If either fails, skip to the fallback clause below.
 
-- [ ] `graph query large_functions(min_lines=100)` — any new / modified function approaching 200 lines?
-- [ ] `graph query impact(changed_files)` — any unexpected downstream impacts in callers?
-- [ ] Orphaned-function scan: for each modified function, `graph query callers_of(<name>)` — zero callers in the same module = orphan candidate (subagent confirms intent).
+- [ ] Large-function scan — any new / modified function approaching 200 lines? Use whatever structural-search tooling the project provides (ast-grep, ripgrep, an IDE outline).
+- [ ] Blast-radius scan over the changed files — any unexpected downstream impact in callers?
+- [ ] Orphaned-function scan: for each modified function, enumerate its call sites — zero callers in the same module = orphan candidate (subagent confirms intent).
 
-**Fallback** (retry-aware, evidence-required): first graph call fails → retry once. Second fails → RESULT MUST include the Explore-subagent's RESULT block demonstrating a manual call-graph audit was actually executed. Documenting only `[graph unavailable]` without subagent evidence = silent skip = FAIL.
+**Fallback** (retry-aware, evidence-required): if the first structural-search call fails, retry once. If the second fails, the RESULT block MUST include an Explore-subagent RESULT block demonstrating that a manual call-site audit was actually executed. Recording only `[search unavailable]` with no subagent evidence is a silent skip = FAIL.
 
 ### MCP access discrimination
 
-For every subagent RESULT block that discusses graph queries: first line must be `mcp_graph_available: yes|no`. Missing = FAIL. Use the field to discriminate:
+For every subagent RESULT block that discusses structural-search results: the first line must be `structural_search_available: yes|no`. Missing = FAIL. Use the field to discriminate:
 
-- `mcp_graph_available: no` + grep fallback evidence = PASS (acceptable — subagent had no MCP access).
-- `mcp_graph_available: yes` + no graph-query evidence = FAIL (lazy fallback — subagent had access but defaulted to grep).
+- `structural_search_available: no` + grep fallback evidence = PASS (acceptable — the subagent had no structural tooling).
+- `structural_search_available: yes` + no structural-search evidence = FAIL (lazy fallback — the subagent had the tooling and defaulted to grep).
 
 ## Pass Criteria
 
@@ -112,4 +112,4 @@ Output: `<promise>HAIKU_PASS</promise>`
 
 1. List failed items with file:line references.
 2. Do NOT output the promise.
-3. Ralph loop restarts from Tier 1 after main agent fixes.
+3. Ralph loop restarts from Tier 1 after main agent fixes. The loop is bounded: up to 5 restarts, then escalate to a class sweep and resume with the count reset to zero. The bound counts RESTARTS, not rounds.
