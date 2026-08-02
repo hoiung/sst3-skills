@@ -17,7 +17,7 @@ Respect these APs (full detail in `ANTI-PATTERNS.md`):
 
 - **AP #10 Duplicate Rules**: the capture / computed-CSS / pixel-diff MECHANICS live in the two guides. This skill points at them — it does NOT restate the command bodies. Grep the guides before adding any mechanic doc here.
 - **AP #16 Monitor, Don't Fire-and-Forget**: after every `shoot.py` / `compare_computed_style.py` / `pixel-drift.sh` run, VERIFY the exit code and read the stderr telemetry (which wait-strategy fired, normalisation WxH, `compare` rc). "Ran the script" is not "got the shot".
-- **AP #17 Keep Going Until Done**: a per-page 3x loop runs its iterations without pausing to ask "should I continue?". Stop ONLY at 80% context, a destructive action needing consent, genuinely stuck, or task complete.
+- **AP #17 Keep Going Until Done**: a per-page 3x loop runs its iterations without pausing to ask "should I continue?". Stop ONLY at the ~50%-remaining compact trigger (on long work, auto-`/handover` + compact + continue; never below 50% remaining), a destructive action needing consent, genuinely stuck, or task complete.
 - **AP #18 Sample-Invocation**: a real end-to-end shoot + compare + drift on one live page IS the Workflow/E2E-tier verification. Keep the per-repo `.design-fidelity.json` + the produced numbers as the evidence.
 
 ## Operator Prerequisites
