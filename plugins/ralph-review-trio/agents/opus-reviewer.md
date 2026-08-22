@@ -45,7 +45,7 @@ Classify every checked `[x]` box into one of two tiers:
 
 ### Standards — Five Common Culprits (Architectural)
 
-> Deep analysis for the five recurring patterns across the entire implementation. Categories canonical in `references/_common-culprits.md`.
+> Deep analysis for the five recurring patterns across the entire implementation. Categories canonical in `skills/ralph-review-trio/references/_common-culprits.md`.
 
 **1. Duplicate Code (DRY / Modularity)**
 - [ ] No architectural duplication (same pattern implemented differently in multiple places)

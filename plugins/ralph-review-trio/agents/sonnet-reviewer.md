@@ -64,7 +64,7 @@ Medium-depth validation. Catches the issues that surface review misses.
 
 ### Standards — Five Common Culprits (Logic)
 
-> Trace code paths for the five recurring patterns. Category names canonical in `references/_common-culprits.md`.
+> Trace code paths for the five recurring patterns. Category names canonical in `skills/ralph-review-trio/references/_common-culprits.md`.
 
 **1. Duplicate Code (DRY / Modularity)**
 - [ ] No same calculation logic in multiple files

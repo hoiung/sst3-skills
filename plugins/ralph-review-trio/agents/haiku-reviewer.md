@@ -42,7 +42,7 @@ Fast, cheap surface validation. Catches the majority of issues with the lowest t
 
 ### Standards — Five Common Culprits (Surface)
 
-> Scan for obvious violations of the five recurring patterns. Category names + framing canonical in `references/_common-culprits.md`.
+> Scan for obvious violations of the five recurring patterns. Category names + framing canonical in `skills/ralph-review-trio/references/_common-culprits.md`.
 
 **1. Duplicate Code (DRY / Modularity)**
 - [ ] No copy-pasted code blocks visible
