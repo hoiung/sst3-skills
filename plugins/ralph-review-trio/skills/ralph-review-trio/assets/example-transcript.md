@@ -139,7 +139,7 @@ factual_claims: none added in this diff
 <promise>RALPH_PASS</promise>
 
 Three tiers passed. Two restart cycles (Tier 1 × 2 iterations, Tier 2 × 1 iteration).
-ralph_restarts: 2 of 5 before escalation.
+ralph_restarts: 2 of 3 before escalation.
 Total findings fixed: 4.
 Branch ready for merge.
 ```
@@ -149,7 +149,7 @@ Branch ready for merge.
 ## What this transcript demonstrates
 
 - **Restart-on-fail**: Tier 2 found issues after Tier 1 already passed. Loop went back to Tier 1, not to "Tier 3 with a flag".
-- **Bounded restart loop**: this run used 2 restarts. The loop allows up to 5 restarts; at restart 6 it escalates to a class sweep and then resumes with the count reset to zero. The bound counts RESTARTS, not rounds, and it redirects effort rather than ending the review.
+- **Bounded restart loop**: this run used 2 restarts. The loop allows up to 3 restarts; at restart 4 it escalates to a class sweep and then resumes with the count reset to zero for one final loop, after which an unresolved review stops and reports its outstanding findings with their classes. The bound counts RESTARTS, not rounds.
 - **Cross-boundary contract**: the `**kwargs`-swallowing mock was caught at Tier 2 — surface tier doesn't trace call-args assertions.
 - **Governance cadence**: Opus tier classified the three checkbox closures correctly (two Tier A interleaved, one Tier B batched).
 - **Graph spot-check**: Opus used graph to list callers, then read the source to confirm — never trusted the graph alone.

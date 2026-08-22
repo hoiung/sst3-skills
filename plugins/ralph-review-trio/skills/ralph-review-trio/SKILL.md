@@ -5,7 +5,7 @@ description: Run a sequential three-tier code review on a finished implementatio
 
 # Ralph Review Trio
 
-This skill triggers `/ralph-review`, which runs three sequential reviewer subagents at increasing depth. If any tier flags a failure, the loop restarts from Tier 1 after fixes, up to 5 restarts. The bound counts RESTARTS, not rounds; at restart 6 the loop escalates to a class sweep and then resumes with the count reset to zero, so review never stops early.
+This skill triggers `/ralph-review`, which runs three sequential reviewer subagents at increasing depth. If any tier flags a failure, the loop restarts from Tier 1 after fixes, up to 3 restarts. The bound counts RESTARTS, not rounds; at restart 4 the loop escalates to a class sweep and then resumes with the count reset to zero for exactly ONE further loop - if that loop does not pass, the review stops and reports the outstanding findings with their classes rather than looping on.
 
 ## When to trigger
 

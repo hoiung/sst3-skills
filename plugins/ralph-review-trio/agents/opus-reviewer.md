@@ -160,4 +160,4 @@ Output: `<promise>OPUS_PASS</promise>`
 2. Explain why it violates standards
 3. Suggest a specific fix
 4. Do NOT output the promise
-5. Ralph loop restarts from Tier 1 after fixes. The loop is bounded: up to 5 restarts, then escalate to a class sweep and resume with the count reset to zero. The bound counts RESTARTS, not rounds.
+5. Ralph loop restarts from Tier 1 after fixes. The loop is bounded: up to 3 restarts, then escalate to a class sweep and resume with the count reset to zero for exactly ONE further loop; if that loop does not pass, the loop stops and reports the outstanding findings with their classes. The bound counts RESTARTS, not rounds.

@@ -112,4 +112,4 @@ Output: `<promise>HAIKU_PASS</promise>`
 
 1. List failed items with file:line references.
 2. Do NOT output the promise.
-3. Ralph loop restarts from Tier 1 after main agent fixes. The loop is bounded: up to 5 restarts, then escalate to a class sweep and resume with the count reset to zero. The bound counts RESTARTS, not rounds.
+3. Ralph loop restarts from Tier 1 after main agent fixes. The loop is bounded: up to 3 restarts, then escalate to a class sweep and resume with the count reset to zero for exactly ONE further loop; if that loop does not pass, the loop stops and reports the outstanding findings with their classes. The bound counts RESTARTS, not rounds.

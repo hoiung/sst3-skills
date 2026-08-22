@@ -17,7 +17,7 @@ Claude Code registers plugin-bundled agents under the `<plugin-name>:<agent-name
 ## Controller logic
 
 1. **Tier 1 — Haiku** (surface). Dispatch the `ralph-review-trio:haiku-reviewer` subagent with the diff scope and pass criteria. Wait for `<promise>HAIKU_PASS</promise>` or a failure report.
-2. **On FAIL**: main agent applies fixes, commits per-file, then restarts from Tier 1. Do NOT proceed to Tier 2 with a flag. The restart loop is bounded at up to 5 restarts. The bound counts RESTARTS, not rounds: a restart is a return to Tier 1 after a FAIL, so round N+1 begins with restart N.
+2. **On FAIL**: main agent applies fixes, commits per-file, then restarts from Tier 1. Do NOT proceed to Tier 2 with a flag. The restart loop is bounded at up to 3 restarts. The bound counts RESTARTS, not rounds: a restart is a return to Tier 1 after a FAIL, so round N+1 begins with restart N.
 3. **On PASS**: proceed to Tier 2.
 4. **Tier 2 — Sonnet** (logic). Dispatch `ralph-review-trio:sonnet-reviewer`. Same pass / fail logic.
 5. **Tier 3 — Opus** (deep analysis). Dispatch `ralph-review-trio:opus-reviewer`. Same pass / fail logic.
@@ -57,6 +57,6 @@ Any command a reviewer runs that produces > 200 lines (pytest, git diff, log tai
 
 ## Restart bound and escalation
 
-Restart 6 is NOT taken. Escalate instead: run ONE class-sweep pass over the whole defect class, then resume the tier sequence with the restart count reset to zero. Each escalation MUST use a different method from the previous escalation in the same review, and records which method it used and what it cost - two identical sweeps fail identically. The cycle repeats - up to 5 restarts, escalate, up to 5 restarts, escalate. There is no stop-and-ask terminal state: the bound redirects effort, it never ends the review.
+Restart 4 is NOT taken. Escalate instead: run ONE class-sweep pass over the whole defect class (a deterministic enumeration is preferred where the class is mechanically enumerable), then resume the tier sequence with the restart count reset to zero for exactly ONE further loop. The escalation MUST use a method different from what the review's failed rounds already tried, and records which method it used and what it cost - two identical sweeps fail identically (one escalation per review; "different" binds against the rounds' own attempts). If the post-escalation loop does not reach PASS, the review STOPS and reports every outstanding finding with its class - a terminal stop-and-report, never a silent abandon.
 
-Only a finding that changes SHIPPED BEHAVIOUR restarts the sequence. A finding confined to tests, comments, or documentation is recorded and fixed, but does not restart from Tier 1. A finding that invalidates the EVIDENCE for an acceptance criterion counts as shipped behaviour and DOES restart.
+Only a finding that changes SHIPPED BEHAVIOUR restarts the sequence. A finding confined to tests, comments, or documentation is fixed IN PLACE and the round CONTINUES to the next tier - it does not restart and it does not abort the round. A finding that invalidates the EVIDENCE for an acceptance criterion counts as shipped behaviour and DOES restart.

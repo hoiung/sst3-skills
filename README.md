@@ -16,7 +16,7 @@ Then run `/ralph-review` on a finished implementation branch, or `/design-fideli
 
 ### `ralph-review-trio`
 
-Sequential three-tier code review. A reviewer at each tier runs a different-depth checklist; if any tier fails, the loop restarts from Tier 1. No next-tier-with-flag shortcut. The loop is bounded at up to 5 restarts; at restart 6 it escalates to a class sweep and then resumes with the count reset to zero, so the review is redirected rather than abandoned.
+Sequential three-tier code review. A reviewer at each tier runs a different-depth checklist; if any tier fails, the loop restarts from Tier 1. No next-tier-with-flag shortcut. The loop is bounded at up to 3 restarts; at restart 4 it escalates to a class sweep and then resumes with the count reset to zero for one final loop, after which an unresolved review stops and reports its outstanding findings rather than looping on.
 
 | Tier | Model | Role |
 |---|---|---|
@@ -44,7 +44,7 @@ See `plugins/design-fidelity/skills/design-fidelity/SKILL.md` for the workflow, 
 
 ## What makes this pack different
 
-- **Sequential restart-on-fail**: fail in any tier restarts from Tier 1, not "continue to next tier with warning". Bounded at up to 5 restarts, counting RESTARTS not rounds, then escalation instead of a sixth.
+- **Sequential restart-on-fail**: fail in any tier restarts from Tier 1, not "continue to next tier with warning". Bounded at up to 3 restarts, counting RESTARTS not rounds, then escalation instead of a fourth, then one final loop, then a terminal stop-and-report.
 - **AP #18 Sample Invocation Gate**: for pipeline / CLI-wiring / cross-module function-arg propagation changes, reviewers require a REAL-CLI sample invocation against a real DB. Exit-code-0 alone is insufficient.
 - **AP #20 Proof-of-Work governance**: canonical audit signal is the `## Proof of Work` section in the issue body — not timeline events. Tier A phase-deliverable vs Tier B cross-cutting-meta cadence discrimination.
 - **AP #19 `structural_search_available` first-line discriminator**: every subagent RESULT block that discusses code-graph queries must declare structural-search availability on the first line, so the controller can distinguish "no structural-search access" from "lazy fallback".

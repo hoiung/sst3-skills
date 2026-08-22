@@ -159,4 +159,4 @@ Output: `<promise>SONNET_PASS</promise>`
 1. List failed items with evidence of failure.
 2. Specify which Fail Fast / Registry violation was found.
 3. Do NOT output the promise.
-4. Ralph loop restarts from Tier 1. The loop is bounded: up to 5 restarts, then escalate to a class sweep and resume with the count reset to zero. The bound counts RESTARTS, not rounds.
+4. Ralph loop restarts from Tier 1. The loop is bounded: up to 3 restarts, then escalate to a class sweep and resume with the count reset to zero for exactly ONE further loop; if that loop does not pass, the loop stops and reports the outstanding findings with their classes. The bound counts RESTARTS, not rounds.
