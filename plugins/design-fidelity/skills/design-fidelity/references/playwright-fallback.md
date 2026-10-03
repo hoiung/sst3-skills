@@ -71,6 +71,9 @@ def main() -> int:
         page.wait_for_timeout(5000)
 
         page.screenshot(path=str(SCREENSHOTS_DIR / f"issue-<N>-default.png"), full_page=True)
+        # A region clip on a full-page shot is computed in page coordinates (getBoundingClientRect()
+        # + window.scrollY) or taken with locator.screenshot(), never from boundingBox() (c4:T72):
+        # boundingBox() is viewport-relative, so its clip lands on the wrong region.
         # ... interact, capture POST body, assert on `captured["body"]` keys ...
         assert "expected_field" in captured["body"], f"missing: {captured}"
         browser.close()

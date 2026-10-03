@@ -1,6 +1,6 @@
 ---
 name: ralph-review-trio
-description: Run a sequential three-tier code review on a finished implementation branch — Haiku (surface) → Sonnet (logic) → Opus (deep). Restarts from Tier 1 on any tier failure. Use when a solo branch or PR is code-complete and you want structured pre-merge verification before human review.
+description: Run a sequential three-tier code review on a finished implementation branch — Haiku (surface) → Sonnet (logic) → Opus (deep). Restarts from Tier 1 on any tier failure, bounded, ending in a stop-and-report. Use when a solo branch or PR is code-complete and you want structured pre-merge verification before human review.
 ---
 
 # Ralph Review Trio
@@ -65,4 +65,4 @@ findings: [{path, line, claim, evidence}]
 scope_gaps: [list or "none"]
 ```
 
-The main agent reads the RESULT block and decides next action (restart, next tier, or PASS).
+The main agent reads the RESULT block and decides next action (restart, next tier, or PASS; a FAIL in the one post-escalation loop is stop-and-report).
