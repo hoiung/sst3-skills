@@ -140,7 +140,6 @@ BANNED_WORDS: tuple[str, ...] = (
     "delve", "delving", "delved",
     "spearhead", "spearheading", "spearheaded",
     "seamless", "seamlessly",
-    "cutting-edge",
     "innovative",
     "impactful",
     "facilitate", "facilitating", "facilitated",
