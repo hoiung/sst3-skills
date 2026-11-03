@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           # Commit-message-scan step below uses `git log <since>..HEAD` against
           # the push's `before` sha. Default shallow-clone depth=1 misses that
@@ -57,7 +57,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Validate marketplace.json required fields
         run: |
           jq -e '.name and .description and .plugins and (.plugins | length > 0)' \
