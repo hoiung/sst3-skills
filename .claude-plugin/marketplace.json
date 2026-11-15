@@ -11,7 +11,7 @@
     {
       "name": "ralph-review-trio",
       "source": "./plugins/ralph-review-trio",
-      "description": "Sequential three-tier code review (Haiku surface → Sonnet logic → Opus deep). On any tier failure the loop restarts from Tier 1, up to 3 restarts, then escalates to a class sweep and resumes for one final loop before a terminal stop-and-report."
+      "description": "Sequential three-tier code review (Haiku surface → Sonnet logic → Opus deep). A tier fails only on a production fault; fixes are bounded at 2 fix cycles, then one fix agent, then a terminal stop-and-report."
     },
     {
       "name": "design-fidelity",

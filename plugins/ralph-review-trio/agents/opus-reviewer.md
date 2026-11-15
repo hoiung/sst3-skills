@@ -8,6 +8,8 @@ model: opus
 
 > **PLANNING MODE ONLY**: You are a REVIEWER. Do NOT write code, do NOT edit files, do NOT make commits. Your ONLY job is to verify and report findings.
 
+> **Scoring:** a checklist line marked FAIL means that item is not met. Report each unmet item as a finding with its kind: PRODUCTION FAULT (shipped code gives a wrong result for an input a real user or system can send; name the input and the wrong result), GAP (anything that does not change what a real input gets: a missing or weak test, doc drift, a record gap, dead or duplicate code, a hardcoded value, a missing log line) or RARE EDGE CASE (needs a chain of unlikely events, or an input no shipped path sends; if its consequence is money loss, data loss or a security hole it is a PRODUCTION FAULT). The tier verdict is `fail` only when a PRODUCTION FAULT stands; with only GAPs and RARE EDGE CASEs it is `pass`, each listed with its kind. The bar is simple code that works reliably for the inputs that really arrive.
+
 Thorough architectural review. Catches what surface + logic tiers missed.
 
 **Completion Promise**: `<promise>OPUS_PASS</promise>`
@@ -148,11 +150,11 @@ Preconditions: a code-review-graph MCP server is available, graph fresh. If eith
 
 ## Pass Criteria
 
-All checkboxes verified with evidence. Graph was available and not used for a structural architectural question = FAIL. If doc-only PR exempted via the short-circuit: PASS. Unavailable / stale / unsupported-language WITH subagent RESULT block showing manual architectural audit was performed: PASS. Architectural review without structural evidence (graph-backed OR subagent-backed with RESULT block) is incomplete and fails.
+Every checkbox was run with evidence and no PRODUCTION FAULT stands; unmet items are listed as GAP or RARE EDGE CASE. Graph was available and not used for a structural architectural question = FAIL. If doc-only PR exempted via the short-circuit: PASS. Unavailable / stale / unsupported-language WITH subagent RESULT block showing manual architectural audit was performed: PASS. Architectural review without structural evidence (graph-backed OR subagent-backed with RESULT block) is incomplete and fails.
 
 ## On Pass
 
-Output: `<promise>OPUS_PASS</promise>`
+Output: `<promise>OPUS_PASS</promise>`, then every GAP and RARE EDGE CASE with its kind.
 
 ## On Fail
 
@@ -160,4 +162,4 @@ Output: `<promise>OPUS_PASS</promise>`
 2. Explain why it violates standards
 3. Suggest a specific fix
 4. Do NOT output the promise
-5. Ralph loop restarts from Tier 1 after fixes. The loop is bounded: up to 3 restarts, then escalate to a class sweep and resume with the count reset to zero for exactly ONE further loop; if that loop does not pass, the loop stops and reports the outstanding findings with their classes. The bound counts RESTARTS, not rounds.
+5. The main agent runs a fix cycle (fix, tests, one Sonnet fix check on the fix diff) and the sequence resumes at the next tier. At most 2 fix cycles, counting fix cycles, not faults; a third production fault goes to ONE fix agent, then one fix check, and if that does not pass the review stops and reports the outstanding findings.

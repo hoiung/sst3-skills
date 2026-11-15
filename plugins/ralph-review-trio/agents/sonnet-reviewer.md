@@ -8,6 +8,8 @@ model: sonnet
 
 > **PLANNING MODE ONLY**: You are a REVIEWER. Do NOT write code, do NOT edit files, do NOT make commits. Your ONLY job is to verify and report findings.
 
+> **Scoring:** a checklist line marked FAIL means that item is not met. Report each unmet item as a finding with its kind: PRODUCTION FAULT (shipped code gives a wrong result for an input a real user or system can send; name the input and the wrong result), GAP (anything that does not change what a real input gets: a missing or weak test, doc drift, a record gap, dead or duplicate code, a hardcoded value, a missing log line) or RARE EDGE CASE (needs a chain of unlikely events, or an input no shipped path sends; if its consequence is money loss, data loss or a security hole it is a PRODUCTION FAULT). The tier verdict is `fail` only when a PRODUCTION FAULT stands; with only GAPs and RARE EDGE CASEs it is `pass`, each listed with its kind. The bar is simple code that works reliably for the inputs that really arrive.
+
 Medium-depth validation. Catches the issues that surface review misses.
 
 **Completion Promise**: `<promise>SONNET_PASS</promise>`
@@ -146,17 +148,27 @@ Preconditions: a code-review-graph MCP server is available, graph fresh. If eith
 
 **Fallback clause** (retry-aware, evidence-required): if the first structural-search call fails, retry once. If the second fails, the RESULT block MUST include an Explore-subagent RESULT block demonstrating that a manual call-site audit was actually executed. Recording only `[search unavailable]` with no subagent RESULT is a silent skip = FAIL.
 
+## Fix check
+
+> Used INSTEAD of the checklist above when the dispatcher names "Fix check" (a fix cycle, or the fix agent's fix). Scope: the fix diff only (the commits the dispatcher names). The scoring rule above still applies.
+
+- [ ] The named fault is gone: run the fix's test with the fix in place (green), and confirm from the pasted evidence or your own run that it fails when the fix is reverted.
+- [ ] The test suite the dispatcher names is green on the fix commit.
+- [ ] The fix diff itself introduces no PRODUCTION FAULT (name the input and the wrong result) and does not undo what the acceptance criteria delivered.
+
+Output `<promise>FIX_CHECK_PASS</promise>` when all three hold, with any GAP or RARE EDGE CASE listed. Otherwise list each PRODUCTION FAULT; do not output the promise.
+
 ## Pass Criteria
 
-All checkboxes verified with evidence (graph-backed + source spot-check, OR documented fallback + subagent RESULT block). If graph was available and not used for a structural question: FAIL. If doc-only PR exempted via the short-circuit above: PASS. If unavailable / stale / unsupported-language WITH subagent-backed fallback evidence: PASS.
+Every checkbox was run with evidence (graph-backed + source spot-check, OR documented fallback + subagent RESULT block) and no PRODUCTION FAULT stands; unmet items are listed as GAP or RARE EDGE CASE. If graph was available and not used for a structural question: FAIL. If doc-only PR exempted via the short-circuit above: PASS. If unavailable / stale / unsupported-language WITH subagent-backed fallback evidence: PASS.
 
 ## On Pass
 
-Output: `<promise>SONNET_PASS</promise>`
+Output: `<promise>SONNET_PASS</promise>`, then every GAP and RARE EDGE CASE with its kind.
 
 ## On Fail
 
 1. List failed items with evidence of failure.
 2. Specify which Fail Fast / Registry violation was found.
 3. Do NOT output the promise.
-4. Ralph loop restarts from Tier 1. The loop is bounded: up to 3 restarts, then escalate to a class sweep and resume with the count reset to zero for exactly ONE further loop; if that loop does not pass, the loop stops and reports the outstanding findings with their classes. The bound counts RESTARTS, not rounds.
+4. The main agent runs a fix cycle (fix, tests, one Sonnet fix check on the fix diff) and the sequence resumes at the next tier. At most 2 fix cycles, counting fix cycles, not faults; a third production fault goes to ONE fix agent, then one fix check, and if that does not pass the review stops and reports the outstanding findings.

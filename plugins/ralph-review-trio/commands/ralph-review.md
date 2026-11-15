@@ -1,10 +1,12 @@
 ---
-description: Run the three-tier Ralph Review sequence (Haiku → Sonnet → Opus) on the current branch. Restarts from Tier 1 on any tier failure.
+description: Run the three-tier Ralph Review sequence (Haiku → Sonnet → Opus) on the current branch. Only a production fault fails a tier; at most 2 fix cycles, then one fix agent.
 ---
 
 # Ralph Review
 
-Run a sequential three-tier code review on the current feature / solo branch. Each tier dispatches a reviewer subagent that runs its own checklist at increasing depth. If any tier fails, fix the findings and restart from Tier 1.
+Run a sequential three-tier code review on the current feature / solo branch. Each tier dispatches a reviewer subagent that runs its own checklist at increasing depth and reviews the whole diff once.
+
+The bar: simple code that works reliably for the inputs that really arrive. Not coverage of every conceivable case.
 
 ## Agent dispatch — namespacing matters
 
@@ -17,15 +19,45 @@ Claude Code registers plugin-bundled agents under the `<plugin-name>:<agent-name
 ## Controller logic
 
 1. **Tier 1 — Haiku** (surface). Dispatch the `ralph-review-trio:haiku-reviewer` subagent with the diff scope and pass criteria. Wait for `<promise>HAIKU_PASS</promise>` or a failure report.
-2. **On FAIL**: main agent applies fixes, commits per-file, then restarts from Tier 1. Do NOT proceed to Tier 2 with a flag. The restart loop is bounded at up to 3 restarts. The bound counts RESTARTS, not rounds: a restart is a return to Tier 1 after a FAIL, so round N+1 begins with restart N.
-3. **On PASS**: proceed to Tier 2.
-4. **Tier 2 — Sonnet** (logic). Dispatch `ralph-review-trio:sonnet-reviewer`. Same pass / fail logic.
-5. **Tier 3 — Opus** (deep analysis). Dispatch `ralph-review-trio:opus-reviewer`. Same pass / fail logic.
-6. On all three passes: emit `<promise>RALPH_PASS</promise>` and proceed to merge gate.
+2. **Sort every finding** into one of the three kinds below. The reviewer proposes the kind; the main agent decides it and writes one line of reason.
+3. **On a PRODUCTION FAULT**: run a fix cycle (below), then resume at the NEXT tier. Do not return to Tier 1.
+4. **Tier 2 — Sonnet** (logic). Dispatch `ralph-review-trio:sonnet-reviewer`. Same logic.
+5. **Tier 3 — Opus** (deep analysis). Dispatch `ralph-review-trio:opus-reviewer`. Same logic. After an Opus production fault, a passing fix check is the overall pass.
+6. On pass: emit `<promise>RALPH_PASS</promise>` and proceed to merge gate.
 
-## Why restart-on-fail (not continue-with-flag)
+## The three kinds of finding
 
-Bugs caught by a later tier often invalidate earlier-tier findings. The surface-check pass on commit hygiene is meaningless if the deeper review surfaces a removed-and-re-added file. A fail at any tier says "go back and re-verify everything" — not "note the problem and keep going".
+| Kind | Test | Outcome |
+|------|------|---------|
+| PRODUCTION FAULT | Shipped code gives a wrong result for an input a real user or system can send. The finding names the input and the wrong result. | A fix cycle. |
+| GAP | Anything that does not change what a real input gets: a missing, weak or vacuous test, doc drift, a record gap, dead or duplicate code, a hardcoded value, a missing log line. | The main agent fixes it in place and runs the tests. The round continues. Nothing is re-reviewed. |
+| RARE EDGE CASE | Needs a chain of unlikely events, or an input no shipped path sends. | Recorded for the human reviewer, not fixed. |
+
+- Only a PRODUCTION FAULT starts a fix cycle. A finding with no named input and wrong result is not a PRODUCTION FAULT.
+- A RARE EDGE CASE whose consequence is money loss, data loss or a security hole is a PRODUCTION FAULT.
+- A repaired or new test that fails on shipped code is a PRODUCTION FAULT.
+
+## Fix cycle
+
+At most 2 fix cycles. The limit counts fix cycles, not faults.
+
+1. Fix every production fault in that tier's report, with one test that fails when the fix is reverted. Findings that share a root cause are fixed at the shared cause, not symptom by symptom. Commit per file.
+2. Run the test suite until green.
+3. Dispatch `ralph-review-trio:sonnet-reviewer` as a "Fix check" on the fix diff only.
+4. Fix check passes: the sequence resumes at the tier after the one that found the fault, and that tier reviews the whole diff.
+5. A production fault found by the fix check starts the next fix cycle.
+
+## Escalation: one fix agent
+
+A third production fault is NOT a third fix cycle. Dispatch ONE fix agent with write access on the strongest model available (Fable where offered). Give it the issue, the whole diff, and every earlier finding and fix.
+
+- It finds the root cause, writes the fix and its test, and runs the tests. It is the only subagent here that writes code.
+- The main agent does not edit while it runs. Afterwards the main agent reads its diff, runs the test suite and commits.
+- Then one fix check of that diff.
+- Pass: the remaining tiers run. Any further production fault is a stop.
+- Fail, or no fix agent can be dispatched: stop.
+
+A stop is a report to the human, never a silent abandon: every outstanding finding with its kind, what was tried, and the question ship or fix. No second escalation, no further cycle.
 
 ## Inputs
 
@@ -40,7 +72,7 @@ Bugs caught by a later tier often invalidate earlier-tier findings. The surface-
 structural_search_available: yes|no   # first line when discussing structural-search results
 verdict: pass|fail|unknown
 files_touched: [paths]
-findings: [{path, line, claim, evidence}]
+findings: [{path, line, claim, evidence, kind}]   # kind: PRODUCTION FAULT | GAP | RARE EDGE CASE
 scope_gaps: [list or "none"]
 ```
 
@@ -52,11 +84,5 @@ Any command a reviewer runs that produces > 200 lines (pytest, git diff, log tai
 
 ## Output
 
-- On PASS: `<promise>RALPH_PASS</promise>` + summary of all three tiers' RESULT blocks.
-- On FAIL (after all retries): the failing tier's RESULT block + main-agent-proposed fix list. No PASS promise emitted.
-
-## Restart bound and escalation
-
-Restart 4 is NOT taken. Escalate instead: run ONE class-sweep pass over the whole defect class (a deterministic enumeration is preferred where the class is mechanically enumerable), then resume the tier sequence with the restart count reset to zero for exactly ONE further loop. The escalation MUST use a method different from what the review's failed rounds already tried, and records which method it used and what it cost - two identical sweeps fail identically (one escalation per review; "different" binds against the rounds' own attempts). If the post-escalation loop does not reach PASS, the review STOPS and reports every outstanding finding with its class - a terminal stop-and-report, never a silent abandon.
-
-Only a finding that changes SHIPPED BEHAVIOUR restarts the sequence. A finding confined to tests, comments, or documentation is fixed IN PLACE and the round CONTINUES to the next tier - it does not restart and it does not abort the round. A finding that invalidates the EVIDENCE for an acceptance criterion counts as shipped behaviour and DOES restart.
+- On PASS: `<promise>RALPH_PASS</promise>` + summary of all three tiers' RESULT blocks, with every recorded GAP and RARE EDGE CASE.
+- On a stop: every outstanding finding with its kind and what was tried. No PASS promise emitted.

@@ -21,7 +21,7 @@ Main agent dispatches `haiku-reviewer` against the current branch diff.
 ```
 ## RESULT
 structural_search_available: yes
-verdict: fail
+verdict: pass
 files_touched:
   - src/clients/order_client.py
   - src/clients/retry.py
@@ -29,38 +29,25 @@ files_touched:
 findings:
   - path: src/clients/retry.py
     line: 34
+    kind: GAP
     claim: debug print statement left in
     evidence: "print(f'retrying {attempt} of {max_retries}')"
   - path: src/clients/order_client.py
     line: 78
+    kind: GAP
     claim: magic number in code (max_retries=3)
     evidence: "self._retry_wrapper(max_retries=3) — should be in config"
 scope_gaps: none
 ```
 
-Main agent applies fixes:
+`<promise>HAIKU_PASS</promise>`
+
+Neither finding changes what a real request gets, so both are GAPs. Main agent fixes them in place:
 - Remove the `print()` (commit `a3f12e9`)
 - Move `max_retries=3` to `config/clients.yaml` under `order_client.max_retries`, read via `config.get('order_client.max_retries')` (commit `b84c5d1`)
 - Run tests, all pass.
 
-**Loop restarts from Tier 1** (restart-on-fail, not continue-with-flag).
-
-## Tier 1 — Haiku RESULT (2nd iteration)
-
-```
-## RESULT
-structural_search_available: yes
-verdict: pass
-files_touched:
-  - src/clients/order_client.py
-  - src/clients/retry.py
-  - tests/test_retry.py
-  - config/clients.yaml
-findings: []
-scope_gaps: none
-```
-
-`<promise>HAIKU_PASS</promise>`
+**The round continues to Tier 2.** Nothing is re-reviewed.
 
 ## Tier 2 — Sonnet RESULT
 
@@ -71,42 +58,40 @@ verdict: fail
 files_touched:
   - src/clients/order_client.py
   - src/clients/retry.py
+  - tests/test_retry.py
+  - config/clients.yaml
 findings:
   - path: src/clients/retry.py
     line: 22
-    claim: exception swallowed without logging
+    kind: PRODUCTION FAULT
+    claim: a failed order is reported as placed
+    input: the order service answers 503 on every attempt
+    wrong_result: "the wrapper returns None with no error, so create_order() carries on as if the order was placed"
     evidence: "except requests.RequestException: pass  # silent fallback — no log, no metric"
   - path: tests/test_retry.py
     line: 51
+    kind: GAP
     claim: mock accepts **kwargs — does not prove propagation
     evidence: "mock_call.assert_called()  # should be assert_called_with(max_retries=3)"
 scope_gaps: none
 ```
 
-Main agent applies fixes:
-- Replace the silent `except` with a structured log + a `retries_exhausted` counter metric (commit `c19f7a2`)
-- Update test to `assert mock_call.call_args.kwargs['max_retries'] == 3` (commit `d55b908`)
-- Run full test suite.
+**Fix cycle 1 of 2.** Main agent:
+- Raises `RetriesExhausted` after the last attempt, with a structured log + a `retries_exhausted` counter metric (commit `c19f7a2`)
+- Adds `test_raises_after_last_attempt`: green with the fix, red when the fix is reverted (commit `e02a6b4`)
+- Fixes the GAP in place: `assert mock_call.call_args.kwargs['max_retries'] == 3` (commit `d55b908`)
+- Runs the full test suite: green.
 
-**Loop restarts from Tier 1**.
-
-## Tier 1 — Haiku RESULT (3rd iteration)
-
-```
-verdict: pass
-findings: []
-```
-
-`<promise>HAIKU_PASS</promise>`
-
-## Tier 2 — Sonnet RESULT (2nd iteration)
+## Fix check — Sonnet RESULT (fix diff only: `c19f7a2`, `e02a6b4`)
 
 ```
 verdict: pass
 findings: []
 ```
 
-`<promise>SONNET_PASS</promise>`
+`<promise>FIX_CHECK_PASS</promise>`
+
+**The sequence resumes at Tier 3**, not Tier 1.
 
 ## Tier 3 — Opus RESULT
 
@@ -138,9 +123,8 @@ factual_claims: none added in this diff
 ```
 <promise>RALPH_PASS</promise>
 
-Three tiers passed. Two restart cycles (Tier 1 × 2 iterations, Tier 2 × 1 iteration).
-ralph_restarts: 2 of 3 before escalation.
-Total findings fixed: 4.
+Three tiers ran once each. 1 fix cycle of 2.
+Production faults fixed: 1. Gaps fixed in place: 3.
 Branch ready for merge.
 ```
 
@@ -148,8 +132,9 @@ Branch ready for merge.
 
 ## What this transcript demonstrates
 
-- **Restart-on-fail**: Tier 2 found issues after Tier 1 already passed. Loop went back to Tier 1, not to "Tier 3 with a flag".
-- **Bounded restart loop**: this run used 2 restarts. The loop allows up to 3 restarts; at restart 4 it escalates to a class sweep and then resumes with the count reset to zero for one final loop, after which an unresolved review stops and reports its outstanding findings with their classes. The bound counts RESTARTS, not rounds.
+- **Only a production fault fails a tier**: Tier 1's two findings were gaps. They were fixed in place and the round carried on.
+- **Fix cycle, then the next tier**: Tier 2's fault got a fix, a test that fails when the fix is reverted, and one fix check on the fix diff. The sequence resumed at Tier 3, not Tier 1.
+- **Bounded**: this run used 1 fix cycle. The loop allows at most 2 fix cycles; a third production fault goes to ONE fix agent, then one fix check, after which an unresolved review stops and reports its outstanding findings. The limit counts fix cycles, not faults.
 - **Cross-boundary contract**: the `**kwargs`-swallowing mock was caught at Tier 2 — surface tier doesn't trace call-args assertions.
 - **Governance cadence**: Opus tier classified the three checkbox closures correctly (two Tier A interleaved, one Tier B batched).
 - **Graph spot-check**: Opus used graph to list callers, then read the source to confirm — never trusted the graph alone.

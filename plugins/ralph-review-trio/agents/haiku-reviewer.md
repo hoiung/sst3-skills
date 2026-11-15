@@ -8,6 +8,8 @@ model: haiku
 
 > **PLANNING MODE ONLY**: You are a REVIEWER. Do NOT write code, do NOT edit files, do NOT make commits. Your ONLY job is to verify and report findings.
 
+> **Scoring:** a checklist line marked FAIL means that item is not met. Report each unmet item as a finding with its kind: PRODUCTION FAULT (shipped code gives a wrong result for an input a real user or system can send; name the input and the wrong result), GAP (anything that does not change what a real input gets: a missing or weak test, doc drift, a record gap, dead or duplicate code, a hardcoded value, a missing log line) or RARE EDGE CASE (needs a chain of unlikely events, or an input no shipped path sends; if its consequence is money loss, data loss or a security hole it is a PRODUCTION FAULT). The tier verdict is `fail` only when a PRODUCTION FAULT stands; with only GAPs and RARE EDGE CASEs it is `pass`, each listed with its kind. The bar is simple code that works reliably for the inputs that really arrive.
+
 Fast, cheap surface validation. Catches the majority of issues with the lowest time cost.
 
 **Completion Promise**: `<promise>HAIKU_PASS</promise>`
@@ -102,14 +104,14 @@ For every subagent RESULT block that discusses structural-search results: the fi
 
 ## Pass Criteria
 
-All checkboxes above verified with evidence (structural via graph where supported, semantic / fallback via subagent). RESULT block documents graph-call outputs + any fallback reasons. Silent skip of graph checks when graph was available = FAIL. Doc-only PR exemption via the short-circuit above = PASS.
+Every checkbox above was run with evidence (structural via graph where supported, semantic / fallback via subagent) and no PRODUCTION FAULT stands; unmet items are listed as GAP or RARE EDGE CASE. RESULT block documents graph-call outputs + any fallback reasons. Silent skip of graph checks when graph was available = FAIL. Doc-only PR exemption via the short-circuit above = PASS.
 
 ## On Pass
 
-Output: `<promise>HAIKU_PASS</promise>`
+Output: `<promise>HAIKU_PASS</promise>`, then every GAP and RARE EDGE CASE with its kind.
 
 ## On Fail
 
 1. List failed items with file:line references.
 2. Do NOT output the promise.
-3. Ralph loop restarts from Tier 1 after main agent fixes. The loop is bounded: up to 3 restarts, then escalate to a class sweep and resume with the count reset to zero for exactly ONE further loop; if that loop does not pass, the loop stops and reports the outstanding findings with their classes. The bound counts RESTARTS, not rounds.
+3. The main agent runs a fix cycle (fix, tests, one Sonnet fix check on the fix diff) and the sequence resumes at the next tier. At most 2 fix cycles, counting fix cycles, not faults; a third production fault goes to ONE fix agent, then one fix check, and if that does not pass the review stops and reports the outstanding findings.

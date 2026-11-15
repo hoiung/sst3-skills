@@ -1,11 +1,11 @@
 ---
 name: ralph-review-trio
-description: Run a sequential three-tier code review on a finished implementation branch — Haiku (surface) → Sonnet (logic) → Opus (deep). Restarts from Tier 1 on any tier failure, bounded, ending in a stop-and-report. Use when a solo branch or PR is code-complete and you want structured pre-merge verification before human review.
+description: Run a sequential three-tier code review on a finished implementation branch — Haiku (surface) → Sonnet (logic) → Opus (deep). Only a production fault fails a tier; fixes are bounded at 2 fix cycles, then one fix agent, ending in a stop-and-report. Use when a solo branch or PR is code-complete and you want structured pre-merge verification before human review.
 ---
 
 # Ralph Review Trio
 
-This skill triggers `/ralph-review`, which runs three sequential reviewer subagents at increasing depth. If any tier flags a failure, the loop restarts from Tier 1 after fixes, up to 3 restarts. The bound counts RESTARTS, not rounds; at restart 4 the loop escalates to a class sweep and then resumes with the count reset to zero for exactly ONE further loop - if that loop does not pass, the review stops and reports the outstanding findings with their classes rather than looping on.
+This skill triggers `/ralph-review`, which runs three sequential reviewer subagents at increasing depth, each reviewing the whole diff once. A tier fails only on a PRODUCTION FAULT: shipped code gives a wrong result for an input a real user or system can send. The main agent fixes it, runs the tests, has one Sonnet fix check review the fix diff, and the sequence resumes at the next tier: at most 2 fix cycles. The limit counts fix cycles, not faults. A third production fault goes to ONE fix agent with write access on the strongest model available (Fable where offered), followed by one fix check; if that does not pass, the review stops and reports the outstanding findings rather than looping on. Test, doc and record gaps are fixed in place with no re-review; rare edge cases are recorded, not fixed.
 
 ## When to trigger
 
@@ -26,19 +26,24 @@ This skill triggers `/ralph-review`, which runs three sequential reviewer subage
 /ralph-review
     │
     ▼
-  Tier 1  — Haiku  (surface checks)   ─── fail ──> restart
+  Tier 1  — Haiku  (surface checks)   ─── production fault ──> fix cycle, then Tier 2
     │  pass
     ▼
-  Tier 2  — Sonnet (logic checks)     ─── fail ──> restart
+  Tier 2  — Sonnet (logic checks)     ─── production fault ──> fix cycle, then Tier 3
     │  pass
     ▼
-  Tier 3  — Opus   (deep analysis)    ─── fail ──> restart
+  Tier 3  — Opus   (deep analysis)    ─── production fault ──> fix cycle, then PASS
     │  pass
     ▼
   RALPH_PASS  →  merge OK
+
+  fix cycle  = fix + one test that fails when the fix is reverted → tests green
+               → one Sonnet fix check on the fix diff
+  limit      = 2 fix cycles → a third production fault goes to ONE fix agent
+               → one fix check → PASS, or stop and report
 ```
 
-A `<promise>HAIKU_PASS</promise>` / `<promise>SONNET_PASS</promise>` / `<promise>OPUS_PASS</promise>` token is emitted by each tier on pass. All three required for overall pass.
+A `<promise>HAIKU_PASS</promise>` / `<promise>SONNET_PASS</promise>` / `<promise>OPUS_PASS</promise>` token is emitted by each tier on pass. A tier that found a production fault is cleared by a passing fix check (`<promise>FIX_CHECK_PASS</promise>`).
 
 ## Entry point
 
@@ -61,8 +66,8 @@ Each tier writes a fenced `## RESULT` block with:
 structural_search_available: yes|no   # first line when discussing structural-search results
 verdict: pass|fail|unknown
 files_touched: [paths]
-findings: [{path, line, claim, evidence}]
+findings: [{path, line, claim, evidence, kind}]   # kind: PRODUCTION FAULT | GAP | RARE EDGE CASE
 scope_gaps: [list or "none"]
 ```
 
-The main agent reads the RESULT block and decides next action (restart, next tier, or PASS; a FAIL in the one post-escalation loop is stop-and-report).
+The main agent reads the RESULT block and decides next action (next tier, a fix cycle, the fix agent, PASS, or stop-and-report).
