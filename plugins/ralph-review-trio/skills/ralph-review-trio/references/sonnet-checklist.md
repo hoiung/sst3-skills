@@ -51,7 +51,7 @@ Every subagent RESULT block that discusses graph queries must start with `mcp_gr
 
 - `yes` + graph-query evidence lines = expected
 - `no` + grep fallback evidence = acceptable (no MCP access)
-- `yes` + no graph-query evidence = **lazy fallback** — the subagent had graph access but used grep anyway. FAIL.
+- `yes` + no graph-query evidence = **lazy fallback** — the subagent had graph access but used grep anyway. The tier is re-dispatched.
 
 This is how a grader at Tier 2 catches subagents that silently skip graph when it was available.
 

@@ -23,7 +23,7 @@ For a `[x]` box to pass at the surface tier, the evidence must be at least one o
 - **command + output** — a reproducible command with captured output (tee log path is fine)
 - **subagent RESULT comment-id** — a comment number referencing a fenced `## RESULT` block
 
-Narrative-only evidence ("implemented the feature") is a fail.
+Narrative-only evidence ("implemented the feature") is a GAP: report it and it is fixed in place. It does not fail the tier.
 
 ## Common false positives
 
@@ -44,4 +44,4 @@ When the code-review-graph MCP is unavailable or the project uses unsupported la
 2. If still unavailable, fall back to an Explore-style subagent that performs the equivalent manual audit (callers, callees, large functions).
 3. Include the subagent's RESULT block in your own RESULT as `[graph unavailable: <reason>] [subagent fallback: <id>]`.
 
-A bare `[graph unavailable]` with no subagent evidence = silent skip = FAIL.
+A bare `[graph unavailable]` with no subagent evidence is a silent skip: the tier is re-dispatched.

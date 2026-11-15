@@ -67,4 +67,4 @@ Every numeric assertion added by the implementation (counts, ratios, durations, 
 
 ## When graph is unavailable
 
-Opus tier has the deepest graph requirements — dead-code detection via `large_functions` + orphan scan, impact scope validation via `impact(max_depth=2)`, large-function audit. When graph is unavailable or unsupported-language, an Explore-style subagent MUST perform the equivalent manual architectural audit and the RESULT must include the subagent's RESULT block. Documenting only `[graph unavailable]` = silent skip = FAIL.
+Opus tier has the deepest graph requirements — dead-code detection via `large_functions` + orphan scan, impact scope validation via `impact(max_depth=2)`, large-function audit. When graph is unavailable or unsupported-language, an Explore-style subagent MUST perform the equivalent manual architectural audit and the RESULT must include the subagent's RESULT block. Documenting only `[graph unavailable]` is a silent skip: the tier is re-dispatched.
