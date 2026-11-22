@@ -61,7 +61,7 @@ The MCP server is fetched on demand via `npx -y chrome-devtools-mcp@<version>` (
 
 ### Take Screenshots
 
-For a page review, save a picture per declared viewport (default desktop 1440 + phone 390) to a file and Read it, or use `/design-fidelity shoot`: an inline MCP screenshot is not counted by the `sst3-page-review` hook (STANDARDS.md "Three-Tier Testing Framework" Run procedure step 3).
+For a page review, save a PNG per declared viewport (default desktop 1440 + phone 390) to a file and Read it, or use `/design-fidelity shoot`: the hook sizes a page's picture by its PNG width, so a JPEG or WebP counts only for a fixed-size output, and an inline MCP screenshot is not counted by the `sst3-page-review` hook (STANDARDS.md "Three-Tier Testing Framework" Run procedure step 3).
 
 ```
 Take a screenshot of https://example.com

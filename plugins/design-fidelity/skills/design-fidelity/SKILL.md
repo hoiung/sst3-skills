@@ -5,7 +5,7 @@ description: Picture every page a change touches at each declared viewport (defa
 
 # Design-Fidelity — Visual Design-Fidelity Loop
 
-> **Scope contract (Invariant)**: this skill ONLY shoots screenshots, diffs them, reads computed CSS, and SUGGESTS CSS changes for the operator to apply. It NEVER deploys, NEVER edits live-site config or DNS, and NEVER pushes to a live site. It reads; the operator decides and edits. Screenshot output is always written OUTSIDE any git repo so a capture can never be committed.
+> **Scope contract (Invariant)**: this skill ONLY shoots screenshots, diffs them, reads computed CSS and, in `compare` and `diff`, SUGGESTS CSS changes for the operator to apply. In a page review (`shoot` after your own change) you fix what the pictures show as part of that change. It NEVER deploys, NEVER edits live-site config or DNS, and NEVER pushes to a live site. Screenshot output is always written OUTSIDE any git repo so a capture can never be committed.
 
 > **Related**: drawing/annotating a schematic diagram (not matching a live page)? See `docs/guides/diagram-annotation-qa.md` (`../dotfiles/docs/guides/...` from a consumer repo) — it reuses this skill's `shoot.py` for the render-and-inspect step of the Hybrid diagram pipeline.
 
@@ -22,7 +22,7 @@ The capture, computed-CSS and pixel-diff mechanics live in the two guides; this 
 
 ## When to Invoke
 
-- After ANY change a person sees rendered (a page, HTML email, print PDF, social card): `shoot` every touched page at each declared viewport and Read every PNG, every time, never only on request. The `sst3-page-review` hook holds Stop and a push to the default branch until each picture, newer than its page's last change, has been Read, and prints the exact `shoot` command (rule: STANDARDS.md "Three-Tier Testing Framework" Run procedure step 3; dotfiles#583).
+- After ANY change a person sees rendered (a page, HTML email, print PDF, social card): `shoot` every touched page at each declared viewport and Read every PNG, every time, never only on request. The `sst3-page-review` hook (the SST3 harness ships it in `claude/hooks/`; this skill alone does not) holds Stop and a push to the default branch until each picture, newer than its page's last change, has been Read, and prints the exact `shoot` command (rule: STANDARDS.md "Three-Tier Testing Framework" Run procedure step 3; dotfiles#583).
 - "Screenshot this page / the whole site at desktop and mobile."
 - "Compare my local build against the live site and tell me what's off." / "Match the design of <live site>." / "Show me the pixel-diff drift for the home page."
 - Greenfield capture-only (no live reference yet): just shoot the build for review.
@@ -32,7 +32,7 @@ The capture, computed-CSS and pixel-diff mechanics live in the two guides; this 
 1. `references/playwright-fallback.md` — the canonical capture + "Live computed-CSS reads" + "Pixel-diff scoring" mechanics (command bodies live HERE, not in this file).
 2. `references/chrome-devtools-mcp.md` — the MCP route + the browser-state security note.
 3. The per-repo `.design-fidelity.json` if it exists.
-4. The screenshots output directory for the active repo under `~/DevProjects/screenshots/<repo>/` (OUTSIDE the repo).
+4. Where pictures go (OUTSIDE the repo): a page review's, where the hook's printed `--out-dir` puts them (under `${XDG_CACHE_HOME:-~/.cache}/sst3-page-review/pictures/`, kept 30 days); ad-hoc and `compare` captures under `~/DevProjects/screenshots/<repo>/`.
 
 ## The page map (`.design-fidelity.json`)
 
@@ -76,7 +76,7 @@ The pixel-drift number is a TREND diagnostic — the operator watches it decreas
 ## Skill Surface Contract
 
 - Inputs: a `base_url` (local build or live), a page→path map, viewports, and optional selectors. Via `.design-fidelity.json` and/or CLI overrides.
-- Outputs: full-page PNGs + diff-highlight PNGs under `~/DevProjects/screenshots/<repo>/`; computed-CSS deltas + drift numbers on stdout; decision-branch telemetry on stderr.
+- Outputs: full-page PNGs + diff-highlight PNGs (a page review: the hook's `--out-dir`; otherwise `~/DevProjects/screenshots/<repo>/`); computed-CSS deltas + drift numbers on stdout; decision-branch telemetry on stderr.
 - Never writes into the consumer repo tree; never deploys; never edits the live site.
 - Exit codes are load-bearing (AP #16): the helpers fail loud on a missing dependency, a blocked PNG coder, or a missing selector rather than producing a silent empty result.
 - **The `.design-fidelity.json` config is treated as UNTRUSTED** (it is repo-local, so a cloned repo could ship a hostile one). `shoot.py`: the opt-in `hugo.cmd` launcher spawns NOTHING unless the operator passes the explicit `--allow-hugo-launcher` CLI flag (config alone can never start a process); when enabled it allowlists the executable to STATIC dev-servers only (hugo/jekyll/vite/serve/http-server — bare PATH names, no `./hugo` path component — and no interpreters or `npm run`-style wrappers) and rejects inline-code/eval flags; `base_url` is http(s)-only (no `file://`); page labels + viewport names must be `[A-Za-z0-9_-]+`; viewport width/height must be ints in `1..8192`; `scroll.step` must be a positive int (settle clamped); `out_dir` must resolve strictly UNDER `$HOME` or the system temp dir. Each violation is a loud exit 2.
