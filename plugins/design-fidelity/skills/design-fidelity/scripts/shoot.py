@@ -22,7 +22,12 @@ by code — Config Traceability):
                                                               # outside any git repo
       "scroll":    {"enabled": true, "step": 600, "settle_ms": 250},  # or a bare bool
       "hugo":      {"cmd": "hugo server -p 1313", "ready_wait_sec": 3} # OPT-IN, requires --allow-hugo-launcher
+      "page_files":       {"layouts/**": ["home"]},  # hook-only: page sources (globs, or glob -> page labels)
+      "ignore_files":     ["reports/**"],            # hook-only: globs that are never pages
+      "fixed_size_files": ["templates/letter.html"]  # hook-only: true-size outputs
     }
+    The three hook-only keys are read by the sst3-page-review hook (claude/hooks/_lib-page-review.py),
+    never by this script, which ignores them; the hook also reads base_url, pages and viewports.
 
 CLI overrides may replace any of base_url / pages / viewports / out_dir / scroll
 without touching the config file. Output (the screenshot paths) is printed to

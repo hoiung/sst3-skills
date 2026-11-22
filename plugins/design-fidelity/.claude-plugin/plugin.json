@@ -1,7 +1,7 @@
 {
   "name": "design-fidelity",
   "version": "0.1.0",
-  "description": "Visual design-fidelity loop: headless full-page screenshots (desktop+mobile), live computed-CSS deltas, and ImageMagick pixel-drift scoring to match a built site against a live reference. Read-only - it measures and suggests, never deploys.",
+  "description": "Visual design-fidelity loop: headless full-page screenshots (desktop+mobile) of every page a change touches, each read, after any change to a rendered page (the sst3-page-review hook prints the shoot command); live computed-CSS deltas and ImageMagick pixel-drift scoring to match a built site against a live reference. Read-only - it measures and suggests, never deploys.",
   "author": {
     "name": "hoiung",
     "url": "https://github.com/hoiung"

@@ -16,7 +16,7 @@
     {
       "name": "design-fidelity",
       "source": "./plugins/design-fidelity",
-      "description": "Visual design-fidelity loop: headless screenshots, live computed-CSS deltas, and pixel-drift scoring to match a built site against a live reference. Read-only."
+      "description": "Visual design-fidelity loop: headless screenshots of every page a change touches, each read; live computed-CSS deltas and pixel-drift scoring to match a built site against a live reference. Read-only."
     }
   ]
 }

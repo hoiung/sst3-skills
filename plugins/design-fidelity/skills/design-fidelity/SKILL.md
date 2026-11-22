@@ -1,6 +1,6 @@
 ---
 name: design-fidelity
-description: Screenshot a webpage, compare a local build against the live site, match the design, and pixel-diff drift. Visual-design-fidelity loop — headless full-page captures (desktop+mobile), live computed-CSS reads, and ImageMagick pixel-drift scoring — reusable in any repo.
+description: Picture every page a change touches at each declared viewport (default desktop 1440 + phone 390) and read every picture, after ANY change to a rendered page (the sst3-page-review hook prints the shoot command); also compare a local build against the live site, match the design, and pixel-diff drift. Headless full-page captures, live computed-CSS reads, and ImageMagick pixel-drift scoring, reusable in any repo.
 ---
 
 # Design-Fidelity — Visual Design-Fidelity Loop
@@ -11,36 +11,41 @@ description: Screenshot a webpage, compare a local build against the live site, 
 
 > **Hard dependency**: the three helpers `scripts/shoot.py`, `scripts/compare_computed_style.py`, and `scripts/pixel-drift.sh`; the two mechanics guides `references/playwright-fallback.md` (capture + computed-CSS + pixel-diff command bodies) and `references/chrome-devtools-mcp.md` (MCP route); the `playwright` Python lib + its bundled `chromium_headless_shell` (per-repo `.venv` OR global python3 — the helpers fail loud with the install command if it is missing); and ImageMagick `compare` (the pixel-diff engine — pixelmatch is NOT installed). The skill is available in every repo where its directory is present on the Claude Code skills path.
 
-## SST3 Anti-Patterns Governing This Skill
-
-Respect these APs (full detail in `ANTI-PATTERNS.md`):
-
-- **AP #10 Duplicate Rules**: the capture / computed-CSS / pixel-diff MECHANICS live in the two guides. This skill points at them — it does NOT restate the command bodies. Grep the guides before adding any mechanic doc here.
-- **AP #16 Monitor, Don't Fire-and-Forget**: after every `shoot.py` / `compare_computed_style.py` / `pixel-drift.sh` run, VERIFY the exit code and read the stderr telemetry (which wait-strategy fired, normalisation WxH, `compare` rc). "Ran the script" is not "got the shot".
-- **AP #17 Keep Going Until Done**: a per-page 3x loop runs its iterations without pausing to ask "should I continue?". Stop ONLY at the ~50%-remaining compact trigger (on long work, auto-`/handover` + compact + continue; never below 50% remaining), a destructive action needing consent, genuinely stuck, or task complete.
-- **AP #18 Sample-Invocation**: a real end-to-end shoot + compare + drift on one live page IS the Workflow/E2E-tier verification. Keep the per-repo `.design-fidelity.json` + the produced numbers as the evidence.
+The capture, computed-CSS and pixel-diff mechanics live in the two guides; this file points at them (ANTI-PATTERNS.md AP #10, AP #16, AP #18).
 
 ## Operator Prerequisites
 
 - **playwright + chromium**: per-repo `.venv/bin/python -m playwright install chromium` (or global). WSL works out of the box with the bundled `chromium_headless_shell` — no Windows Chrome, no extra flags.
 - **ImageMagick**: `compare`, `convert`, `identify` on PATH. On a host whose `policy.xml` denies the PNG coder, `pixel-drift.sh`'s probe guard fails loud — re-allow the PNG coder.
 - **A reachable base_url**: the operator runs the local build server (e.g. `hugo server`) OR supplies a live URL. The skill does not own the server lifecycle by default (an opt-in `hugo` block exists for convenience).
-- **A per-repo `.design-fidelity.json`** (optional): the page→path map, viewports, and out_dir for that repo. The sample values are an EXAMPLE, never a default.
+- **A per-repo `.design-fidelity.json`** (optional): the page map below. The sample values are an EXAMPLE, never a default.
 
 ## When to Invoke
 
+- After ANY change a person sees rendered (a page, HTML email, print PDF, social card): `shoot` every touched page at each declared viewport and Read every PNG, every time, never only on request. The `sst3-page-review` hook holds Stop and a push to the default branch until each picture, newer than its page's last change, has been Read, and prints the exact `shoot` command (rule: STANDARDS.md "Three-Tier Testing Framework" Run procedure step 3; dotfiles#583).
 - "Screenshot this page / the whole site at desktop and mobile."
-- "Compare my local build against the live site and tell me what's off."
-- "Match the design of <live site> — measure how close we are and what to change."
-- "Show me the pixel-diff drift between local and live for the home page."
+- "Compare my local build against the live site and tell me what's off." / "Match the design of <live site>." / "Show me the pixel-diff drift for the home page."
 - Greenfield capture-only (no live reference yet): just shoot the build for review.
 
 ## Mandatory Reading on Invoke
 
 1. `references/playwright-fallback.md` — the canonical capture + "Live computed-CSS reads" + "Pixel-diff scoring" mechanics (command bodies live HERE, not in this file).
 2. `references/chrome-devtools-mcp.md` — the MCP route + the browser-state security note.
-3. The per-repo `.design-fidelity.json` if it exists (page map / viewports / out_dir).
-4. The screenshots output directory for the active repo under `~/DevProjects/screenshots/<repo>/` (where captures and diffs land — OUTSIDE the repo).
+3. The per-repo `.design-fidelity.json` if it exists.
+4. The screenshots output directory for the active repo under `~/DevProjects/screenshots/<repo>/` (OUTSIDE the repo).
+
+## The page map (`.design-fidelity.json`)
+
+```json
+{ "base_url": "http://127.0.0.1:1313", "pages": { "home": "/", "about": "/about" },
+  "viewports": [ { "name": "desktop", "width": 1440, "height": 900 }, { "name": "mobile", "width": 390, "height": 844 } ],
+  "page_files": { "layouts/**": ["home", "about"], "content/about.md": ["about"] },
+  "ignore_files": [ "reports/**" ], "fixed_size_files": [ "templates/letter.html" ] }
+```
+
+- `base_url`, `pages` (label to path), `viewports` (default desktop 1440x900 + mobile 390x844), `out_dir`, `scroll`, `hugo`: read by `shoot.py`.
+- `page_files`, `ignore_files`, `fixed_size_files`: read by the `sst3-page-review` hook only. `page_files` is a list of globs, or `{glob: [page labels]}` so the hook names those pages and its printed command shoots only them; `ignore_files` drops matches (generated reports); `fixed_size_files` marks a true-size output, satisfied by one fresh picture of any width. Globs match the repo-relative path (`*` also crosses `/`). With no `page_files` the hook counts its default page kinds (`.html`, `.css`, `.j2`, `.tsx`, `.vue` and the like, outside test and build folders); `.js`, `.ts`, `.md` and `.py` page sources need a map.
+- The hook also reads `viewports` (a PNG counts for the widest declared viewport no wider than it; a desktop-only repo declares only desktop; a labelled page counts only pictures named `<label>-<viewport>.png`, the names `shoot.py` writes, so a page pictured another way is saved under that name) and `base_url` + `pages` (its printed command). It finds `shoot.py` at `SST3_PAGE_REVIEW_SHOOT_PY`, else this skill's installed copy, else the sst3-skills plugin cache.
 
 ## The Per-Page 3x Iterate Loop
 
@@ -50,21 +55,15 @@ Work ONE page at a time. Each iteration runs this concrete dual-URL recipe:
 2. **Measure the gap.** Run `compare_computed_style.py --local-url <local> --live-url <live> --selector <target>` on the selector(s) you are matching (exact spacing / colour / font deltas per viewport), AND run `pixel-drift.sh <local.png> <live.png>` on the PNG pair (a measurable AE + closeness% + a diff-highlight image).
 3. **Tweak and re-shoot.** Apply the smallest CSS change the deltas point to, rebuild the local site, then re-shoot and re-measure.
 
-Repeat at most 3 times per page. Watch the drift number trend DOWN and the computed-CSS deltas shrink toward zero. Then move to the next page.
+Repeat at most 3 times per page, without pausing to ask. Watch the drift number trend DOWN and the computed-CSS deltas shrink toward zero. Then move to the next page.
 
 ## Sub-Commands
 
-- **`/design-fidelity shoot`** — capture only (`shoot.py`). Works STANDALONE with no live reference (greenfield repo): just produces full-page desktop+mobile screenshots for review.
-- **`/design-fidelity compare`** — run the full per-page loop above against a live reference: `shoot.py` (local + live) → `compare_computed_style.py` → `pixel-drift.sh`. Fires ONLY when a live reference URL is supplied.
+- **`/design-fidelity shoot`** — capture only (`shoot.py`); works STANDALONE with no live reference. Check its exit code and stderr telemetry (which wait strategy fired, normalisation WxH; AP #16), then Read every PNG and look for cut, overlapping or badly wrapped text, alignment, wrong sums, missing details and anything hard to use. Fix what you find and shoot again.
+- **`/design-fidelity compare`** — run the full per-page loop above against a live reference: `shoot.py` (local + live) → `compare_computed_style.py` → `pixel-drift.sh` (check each exit code and the `compare` rc). Fires ONLY when a live reference URL is supplied.
 - **`/design-fidelity diff`** — re-run `pixel-drift.sh` on an existing local/live PNG pair to re-measure drift after a tweak.
 
-## Triple-Check Discipline
-
-> Maps to the Three-Tier Testing Framework (SST3 `STANDARDS.md` "Three-Tier Testing Framework").
-
-- **Unit Tier**: `tests/run_unit_tests.sh` asserts each helper's contract (config-merge + parsers, the null-selector `_error` path, and the pixel-drift output binary) with no browser/live-site dependency.
-- **Workflow Tier**: a real `shoot.py` capture run against a reachable `base_url`, exit 0, with the expected PNGs written outside the repo.
-- **E2E Tier**: a full shoot + compare + drift on one live page end-to-end, producing a real drift number + diff image — the AP #18 sample-invocation.
+Tests: `tests/run_unit_tests.sh` (helper contracts, no browser); a real `shoot` against a reachable `base_url` (Workflow); shoot + compare + drift on one live page (E2E sample).
 
 ## Security: chrome-devtools browser state
 
@@ -73,19 +72,6 @@ When you drive a LIVE site via the chrome-devtools MCP (the alternative to the h
 ## Anti-Overfit Constraint
 
 The pixel-drift number is a TREND diagnostic — the operator watches it decrease across iterations; it is NEVER a hard pass-gate. The target is a STRUCTURAL match, not pixel-perfection (anti-aliasing, font-hinting, and dynamic content make pixel-perfect impossible and pointless). The page→path map, `base_url`, and viewport list are PER-REPO config — the proto values are an example, NOT a default.
-
-## File Locations
-
-| File | Location |
-|------|----------|
-| Capture helper | `scripts/shoot.py` |
-| Computed-CSS delta helper | `scripts/compare_computed_style.py` |
-| Pixel-drift helper | `scripts/pixel-drift.sh` |
-| Unit tests | `tests/run_unit_tests.sh` |
-| Capture / computed-CSS / pixel-diff mechanics | `references/playwright-fallback.md` |
-| MCP route + browser-state security | `references/chrome-devtools-mcp.md` |
-| Per-repo config | `<consumer-repo>/.design-fidelity.json` |
-| Screenshot output (OUTSIDE any repo) | `~/DevProjects/screenshots/<repo>/` |
 
 ## Skill Surface Contract
 

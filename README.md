@@ -30,7 +30,7 @@ See `plugins/ralph-review-trio/skills/ralph-review-trio/SKILL.md` for the trigge
 
 ### `design-fidelity`
 
-Visual design-fidelity loop. Capture headless full-page screenshots (desktop + mobile), compare a local build against a live reference, read the exact computed-CSS deltas, and pixel-diff the drift. Read-only: it measures and suggests CSS changes, never deploys or edits a live site.
+Visual design-fidelity loop. Capture headless full-page screenshots (desktop + mobile) of every page a change touches and read each, after any change to a rendered page (the sst3-page-review hook prints the shoot command); compare a local build against a live reference, read the exact computed-CSS deltas, and pixel-diff the drift. Read-only: it measures and suggests CSS changes, never deploys or edits a live site.
 
 | Step | Helper | Output |
 |---|---|---|
@@ -38,7 +38,7 @@ Visual design-fidelity loop. Capture headless full-page screenshots (desktop + m
 | Compare | `compare_computed_style.py` | per-selector computed-CSS deltas (spacing / colour / font) |
 | Drift | `pixel-drift.sh` | AE + closeness% + a diff-highlight image |
 
-Runs as a `/design-fidelity` slash command (`shoot` / `compare` / `diff`) over a per-page 3x iterate loop. The pixel-drift number is a trend diagnostic, never a hard pass-gate.
+Runs as a `/design-fidelity` slash command (`shoot` / `compare` / `diff`) over a per-page 3x iterate loop; `shoot` alone is the page review every rendered change gets. The pixel-drift number is a trend diagnostic, never a hard pass-gate.
 
 See `plugins/design-fidelity/skills/design-fidelity/SKILL.md` for the workflow, and `plugins/design-fidelity/skills/design-fidelity/references/` for the capture + computed-CSS + pixel-diff mechanics.
 

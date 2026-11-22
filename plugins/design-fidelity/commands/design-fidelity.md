@@ -1,5 +1,5 @@
 ---
-description: Run the visual design-fidelity loop — capture headless screenshots, compare a local build against a live reference, read computed-CSS deltas, and pixel-diff drift. Read-only: it measures and suggests, never deploys.
+description: Run the visual design-fidelity loop — capture headless screenshots of every page a change touches and read each (after any change to a rendered page; the sst3-page-review hook prints the shoot command), compare a local build against a live reference, read computed-CSS deltas, and pixel-diff drift. Read-only: it measures and suggests, never deploys.
 ---
 
 # Design-Fidelity
@@ -8,7 +8,7 @@ Invoke the design-fidelity skill to match a built site against a live reference.
 
 ## Sub-commands
 
-- **`/design-fidelity shoot`** — capture only. Works standalone with no live reference (greenfield): full-page desktop + mobile screenshots for review.
+- **`/design-fidelity shoot`** — capture only. Works standalone with no live reference (greenfield): full-page desktop + mobile screenshots, at each declared viewport, of every page a change touches; read every PNG for cut, overlapping or badly wrapped text, alignment, wrong sums, missing details and anything hard to use.
 - **`/design-fidelity compare`** — the full per-page loop against a live reference: `shoot.py` (local + live) → `compare_computed_style.py` → `pixel-drift.sh`. Fires only when a live reference URL is supplied.
 - **`/design-fidelity diff`** — re-run `pixel-drift.sh` on an existing local/live PNG pair to re-measure drift after a tweak.
 

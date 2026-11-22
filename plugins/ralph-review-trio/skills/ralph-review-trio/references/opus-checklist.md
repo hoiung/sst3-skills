@@ -49,6 +49,10 @@ Verification procedure:
 
 Ordering of Proof of Work entries is authoritative — the section appends in invocation order. Cross-reference the entry order against `git log --oneline` to confirm Tier A items closed within the same phase's commit window.
 
+## Rendered pages: an independent read
+
+Before reading the implementer's notes, open every picture the evidence names for each touched page at each declared viewport (the repo's `.design-fidelity.json` `viewports`, default desktop 1440 + phone 390; a fixed-size output at its true size) and judge it yourself for cut, overlapping or badly wrapped text, alignment, wrong sums, missing details and anything hard to use; then compare with the recorded findings. Kinds as the Sonnet tier's rendered-pages section.
+
 ## Factual claims audit
 
 Every numeric assertion added by the implementation (counts, ratios, durations, capacities, percentages) must have a verifiable source:

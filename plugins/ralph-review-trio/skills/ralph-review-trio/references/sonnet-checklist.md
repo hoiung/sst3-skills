@@ -35,6 +35,10 @@ Unit + smoke tests are necessary but NOT sufficient. A REAL-CLI sample invocatio
 
 Mocks that accept `**kwargs` silently discard params and do NOT prove propagation. Any mock in the fix's tests must assert `call_args.kwargs["<key>"] == <expected>` explicitly.
 
+## Rendered pages
+
+For a change a person sees rendered, the pictures of every touched page at each declared viewport (the repo's `.design-fidelity.json` `viewports`, default desktop 1440 + phone 390; a fixed-size output at its true size) exist, each newer than the page's last change, and what each showed is recorded (cut, overlapping or badly wrapped text, alignment, wrong sums, missing details and anything hard to use: found and fixed, or none). Open each picture yourself and confirm the record. Missing or unread pictures are a GAP; a visible cut, overlap or wrong sum on a shipped page is a PRODUCTION FAULT (its input is the page and viewport). The design-fidelity `shoot` command takes them.
+
 ## Observability discipline
 
 Every new component must emit:

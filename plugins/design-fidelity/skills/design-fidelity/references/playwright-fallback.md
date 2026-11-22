@@ -60,7 +60,8 @@ def intercept(route: Route, request: Request) -> None:
 def main() -> int:
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
-        page = browser.new_context(viewport={"width": 1920, "height": 1080}).new_page()
+        # page review: shoot.py at 1440 + 390, each PNG Read (sst3-page-review)
+        page = browser.new_context(viewport={"width": 1440, "height": 900}).new_page()
         page.route("**/api/<target>**", intercept)
 
         # Polling-dashboard pattern: avoid `wait_until="networkidle"` — it never settles

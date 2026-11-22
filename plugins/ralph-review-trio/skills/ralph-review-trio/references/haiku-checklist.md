@@ -25,6 +25,8 @@ For a `[x]` box to pass at the surface tier, the evidence must be at least one o
 
 Narrative-only evidence ("implemented the feature") is a GAP: report it and it is fixed in place. It does not fail the tier.
 
+For a change a person sees rendered (a page, HTML email, print PDF, social card), the evidence also cites a picture of every touched page at each declared viewport (the repo's `.design-fidelity.json` `viewports`, default desktop 1440 + phone 390; a fixed-size output at its true size), each PNG path on disk (`ls -l <path>`). A missing picture is a GAP.
+
 ## Common false positives
 
 - **Intentional duplication for defence-in-depth**: a value validated at the API layer AND at the DB layer is not a DRY violation — it's a designed belt-and-braces. Flag for the subagent to confirm intent before marking as a finding.
